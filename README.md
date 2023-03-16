@@ -11,11 +11,16 @@ this project is to extend its functionalities.
     - [x] syscall_handler_sysenter
     - [x] wrapper
     - [x] sys_write
-    - [ ] bucle sys_write
+    - [x] bucle sys_write
     - [x] return properly to user mode
 - [x] Fast system calls
 - [x] Implement the `clock` management
 - [x] Implement the `gettime` system call
 - [x] Implement the `page fault` exception management
-    - [ ] quitar el while 1
+    - [x] quitar el while 1
 - [x] Implement `perror`
+
+## Basic process management
+
+- [x] Añadido a `task_struct` el `anchor`
+- [x] Inicialización `freeQueue` y `readyQueue`

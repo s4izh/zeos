@@ -16,6 +16,8 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 }
 #endif
 
+struct list_head free_queue;
+struct list_head ready_queue;
 extern struct list_head blocked;
 
 
@@ -62,10 +64,21 @@ void init_task1(void)
 {
 }
 
+void init_free_queue()
+{
+  INIT_LIST_HEAD(&free_queue);
+  int i;
+  for (i = 0; i < NR_TASKS; ++i)
+  {
+    struct task_struct new;
+    list_add(&(new.anchor), &free_queue)
+  }
+}
 
 void init_sched()
 {
-
+  init_free_queue();
+  INIT_LIST_HEAD(&ready_queue);
 }
 
 struct task_struct* current()
