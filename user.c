@@ -17,7 +17,7 @@ int __attribute__ ((__section__(".text.main")))
   /* --------------- SETUP -------------------------------- */
   /* -- poner a 1 los tests que se quieran hacer ---------- */
 
-  int test_write = 1;
+  int test_write = 0;
   int test_gettime = 0; // probar individualmente porque ocupa mucha pantalla
   int test_pagefault = 0; // desactivar para poder probar el teclado y reloj
 

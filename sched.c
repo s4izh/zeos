@@ -71,7 +71,7 @@ void init_free_queue()
   for (i = 0; i < NR_TASKS; ++i)
   {
     struct task_struct new;
-    list_add(&(new.anchor), &free_queue)
+    list_add(&(new.anchor), &free_queue);
   }
 }
 
