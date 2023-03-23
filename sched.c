@@ -92,3 +92,14 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000);
 }
 
+void inner_task_switch(union task_union *new)
+{
+  page_table_entry *new_DIR = get_DIR(&new->task);
+
+  tss.esp0 = (int)&(new->stack[KERNEL_STACK_SIZE]);
+  writeMSR(0x175, 0, (unsigned long)&(new->stack[KERNEL_STACK_SIZE]));
+
+  set_cr3(&page_table_entry);
+
+}
+

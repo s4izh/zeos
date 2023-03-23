@@ -129,3 +129,19 @@ sysenter_fin:
     movl 12(%esp), %ecx // user stack address
     sti               // enable interrupts again
     sysexit
+
+/* void task_switch(union task_union *new) */
+ENTRY(task_switch)
+    push %ebp
+    movl %esp, %ebp
+    push %ebx
+    push %esi
+    push %edi // estos 3 se salvan porque no los salva el compilador
+    pushl 8(%ebp) // direccion de retorno de new
+    call inner_task_switch
+    addl $4, %esp
+    popl %edi
+    popl %esi 
+    popl %ebx
+
+ENTRY(stack_swap)
