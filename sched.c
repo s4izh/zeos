@@ -70,7 +70,7 @@ void init_free_queue()
   int i;
   for (i = 0; i < NR_TASKS; ++i)
   {
-    struct task_struct new;
+    struct task_struct *new;
     list_add(&(new->anchor), &free_queue);
   }
 }
@@ -99,7 +99,7 @@ void inner_task_switch(union task_union *new)
   tss.esp0 = (int)&(new->stack[KERNEL_STACK_SIZE]);
   writeMSR(0x175, 0, (unsigned long)&(new->stack[KERNEL_STACK_SIZE]));
 
-  set_cr3(&page_table_entry);
+  set_cr3(&new_DIR);
 
 }
 
