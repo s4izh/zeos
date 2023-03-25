@@ -44,7 +44,7 @@ struct task_struct * current();
 
 void task_switch(union task_union*t);
 
-void switch_stack(int *save_sp, int new_sp);
+void switch_stack(unsigned long *old_sp, unsigned long new_sp);
 
 struct task_struct *list_head_to_task_struct(struct list_head *l);
 
