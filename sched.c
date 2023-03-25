@@ -101,5 +101,6 @@ void inner_task_switch(union task_union *new)
 
   set_cr3(&new_DIR);
 
+  stack_swap(&current()->task.kernel_esp, new->task.kernel_esp);
 }
 
