@@ -143,8 +143,9 @@ ENTRY(task_switch)
     popl %edi
     popl %esi 
     popl %ebx
+    ret
 
-/* void stack_swap(); */
+/* void stack_swap(unsigned long *old_sp, unsigned long new_sp); */
 ENTRY(stack_swap)
     movl 4(%esp), %eax
     movl %ebp, (%eax)

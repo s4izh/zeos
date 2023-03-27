@@ -9,10 +9,10 @@
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
-#if 0
+#if 1
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
-  return list_entry( l, struct task_struct, list);
+  return list_entry( l, struct task_struct, anchor); // he cambiado list a anchor
 }
 #endif
 
@@ -20,6 +20,10 @@ struct list_head free_queue;
 struct list_head ready_queue;
 extern struct list_head blocked;
 
+struct task_struct *idle_task = NULL;
+
+void stack_swap();
+void writeMSR();
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t)
@@ -57,7 +61,29 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
+  struct list_head *free_queue_head = list_first(&free_queue);
+  list_del(free_queue_head);
 
+  struct task_struct *idle_task_s = list_head_to_task_struct(free_queue_head);
+  // crea un puntero a la union idle_task_u
+  // que se inicializa con la dirección de memoria de la
+  // variable idle_task_s
+  union task_union *idle_task_u = (union task_union *)idle_task_s;
+
+  idle_task_s->PID = 0;
+  //idle_task_s->TID = 0;
+
+  allocate_DIR(idle_task_s);
+
+  // dirección de retorno
+  idle_task_u->stack[KERNEL_STACK_SIZE - 1] = (unsigned long)&cpu_idle;
+  // ebp
+  idle_task_u->stack[KERNEL_STACK_SIZE - 2] = 0;
+
+  idle_task_s->kernel_esp = (unsigned long)&idle_task_u->stack[KERNEL_STACK_SIZE - 2];
+
+  // puntero global a idle_task
+  /* idle_task = idle_task_s; */
 }
 
 void init_task1(void)
@@ -70,8 +96,8 @@ void init_free_queue()
   int i;
   for (i = 0; i < NR_TASKS; ++i)
   {
-    struct task_struct *new;
-    list_add(&(new->anchor), &free_queue);
+    struct task_struct new;
+    list_add(&(new.anchor), &free_queue);
   }
 }
 
@@ -99,8 +125,8 @@ void inner_task_switch(union task_union *new)
   tss.esp0 = (int)&(new->stack[KERNEL_STACK_SIZE]);
   writeMSR(0x175, 0, (unsigned long)&(new->stack[KERNEL_STACK_SIZE]));
 
-  set_cr3(&new_DIR);
+  set_cr3(new_DIR);
 
-  stack_swap(&current()->task.kernel_esp, new->task.kernel_esp);
+  stack_swap(&current()->kernel_esp, (unsigned long)new->task.kernel_esp);
 }
 
