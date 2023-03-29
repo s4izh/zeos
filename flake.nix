@@ -95,6 +95,7 @@
           self.packages.${system}.bochs
           pkgs.dev86
           pkgs.gcc9
+          pkgs.gdb
         ];
       };
 
