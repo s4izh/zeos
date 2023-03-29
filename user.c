@@ -20,6 +20,7 @@ int __attribute__ ((__section__(".text.main")))
   int test_write = 0;
   int test_gettime = 0; // probar individualmente porque ocupa mucha pantalla
   int test_pagefault = 0; // desactivar para poder probar el teclado y reloj
+  int test_getpid = 1;
 
   /* --------------- WRITE TEST ------------------- */
 
@@ -74,6 +75,16 @@ int __attribute__ ((__section__(".text.main")))
     if (write(1, buff, strlen(buff)) == -1) perror();
     char *p = 0;
     *p = 'x';
+  }
+
+  /* --------------- GETPID TEST ---------------- */
+
+  if (test_getpid) {
+    buff = "\n\nGETPID TEST\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    int pid = getpid();
+    itoa(pid, buff);
+    if (write(1, buff, strlen(buff)) == -1) perror();
   }
 
   /* ----------------------------------------------- */

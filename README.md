@@ -27,7 +27,7 @@ this project is to extend its functionalities.
 - [x] Implement the initial processes initialization.
 - [x] Implement the task switch function.
 - [x] Implement the inner_task_switch function.
-- [ ] Implement the getpid system call.
+- [x] Implement the getpid system call.
 - [ ] Implement the fork system call.
 - [ ] Implement process scheduling.
 - [ ] Implement the exit system call.

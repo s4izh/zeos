@@ -56,3 +56,12 @@ ENTRY(gettime)
     // esta llamada no devuelve error por lo tanto no
     // hace falta que lo gestionemos
     ret
+
+/* int getpid() */
+ENTRY(getpid)
+    pushl %ebp
+    movl %esp, %ebp
+    movl $20, %eax
+    call syscall_sysenter
+    popl %ebp
+    ret
