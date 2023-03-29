@@ -65,13 +65,13 @@ void init_idle (void)
   list_del(free_queue_head);
 
   struct task_struct *idle_task_s = list_head_to_task_struct(free_queue_head);
+
   // crea un puntero a la union idle_task_u
   // que se inicializa con la dirección de memoria de la
   // variable idle_task_s
   union task_union *idle_task_u = (union task_union *)idle_task_s;
 
   idle_task_s->PID = 0;
-  //idle_task_s->TID = 0;
 
   allocate_DIR(idle_task_s);
 
@@ -83,11 +83,30 @@ void init_idle (void)
   idle_task_s->kernel_esp = (unsigned long)&idle_task_u->stack[KERNEL_STACK_SIZE - 2];
 
   // puntero global a idle_task
-  /* idle_task = idle_task_s; */
+  idle_task = idle_task_s;
 }
 
 void init_task1(void)
 {
+  struct list_head *free_queue_head = list_first(&free_queue);
+  list_del(free_queue_head);
+
+  struct task_struct *init_task_s = list_head_to_task_struct(free_queue_head);
+
+  // crea un puntero a la union idle_task_u
+  // que se inicializa con la dirección de memoria de la
+  // variable idle_task_s
+  union task_union *init_task_u = (union task_union *)init_task_s;
+
+  init_task_s->PID = 1;
+
+  allocate_DIR(init_task_s); // allocate dir
+  set_user_pages(init_task_s); // initializate adress space
+
+  tss.esp0 = (int)&(init_task_u->stack[KERNEL_STACK_SIZE]);
+  writeMSR(0x175, 0, (unsigned long)&(init_task_u->stack[KERNEL_STACK_SIZE]));
+
+  set_cr3(get_DIR(init_task_s));
 }
 
 void init_free_queue()
@@ -96,8 +115,7 @@ void init_free_queue()
   int i;
   for (i = 0; i < NR_TASKS; ++i)
   {
-    struct task_struct new;
-    list_add(&(new.anchor), &free_queue);
+    list_add(&(task[i].task.anchor), &free_queue);
   }
 }
 
