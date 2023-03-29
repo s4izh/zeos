@@ -65,3 +65,12 @@ ENTRY(getpid)
     call syscall_sysenter
     popl %ebp
     ret
+
+/* int fork() */
+ENTRY(fork)
+    pushl %ebp
+    movl %esp, %ebp
+    movl $2, %eax
+    call syscall_sysenter
+    popl %ebp
+    ret

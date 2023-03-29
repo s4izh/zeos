@@ -41,6 +41,47 @@ int sys_fork()
 {
   int PID=-1;
 
+  if (list_empty(&free_queue))
+    return -ENOMEM;
+
+  struct list_head *free_queue_head = list_first(&free_queue);
+  list_del(free_queue_head);
+
+  struct task_struct *child_task_s = list_head_to_task_struct(free_queue_head);
+  union task_union *child_task_u = (union task_union *)child_task_s;
+
+  struct task_struct *parent_task_s = current();
+  union task_union *parent_task_u = (union task_union *)parent_task_s;
+
+  copy_data(parent_task_u, child_task_u, sizeof(union task_union));
+
+  allocate_DIR(child_task_s);
+
+  page_table_entry *child_PT = get_PT(child_task_s);
+
+  int page = 0;
+  int new_frame;
+
+  for (page = 0; page < NUM_PAG_DATA; ++page)
+  {
+    new_frame = alloc_frame();
+    if (new_frame != -1)
+    {
+      set_ss_pag(child_PT, PAG_LOG_INIT_DATA + page, new_frame);
+    }
+    else // dealocatar todo
+    {
+      // hacemos el bucle hacia atrás
+      for (; page >= 0; --page)
+      {
+        free_frame(get_frame(child_PT, PAG_LOG_INIT_DATA + page));
+        del_ss_pag(child_PT, PAG_LOG_INIT_DATA + page);
+      }
+      list_add(free_queue_head, &free_queue);
+      return -EAGAIN;
+    }
+  }
+
   // creates the child process
 
   return PID;
