@@ -21,6 +21,7 @@ int __attribute__ ((__section__(".text.main")))
   int test_gettime = 0; // probar individualmente porque ocupa mucha pantalla
   int test_pagefault = 0; // desactivar para poder probar el teclado y reloj
   int test_getpid = 1;
+  int test_fork = 1;
 
   /* --------------- WRITE TEST ------------------- */
 
@@ -86,6 +87,53 @@ int __attribute__ ((__section__(".text.main")))
     int pid = getpid();
     itoa(pid, buff);
     if (write(1, buff, strlen(buff)) == -1) perror();
+  }
+
+  /* --------------- FORK TEST ---------------- */
+
+  if (test_fork) {
+    buff = "\n\nFORK TEST\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    buff = "Creando hijo 1\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+
+    int pid = fork();
+    char pidbuff[16];
+    itoa(pid, pidbuff);
+
+    switch(pid) {
+    case -1:
+      perror();
+      break;
+    case 0:
+      buff = "\nSoy el hijo\n";
+      if (write(1, buff, strlen(buff)) == -1) perror();
+      break;
+    default:
+      buff = "padre PID = ";
+      if (write(1, buff, strlen(buff)) == -1) perror();
+      char ownpid[16];
+      itoa(getpid(), ownpid);
+      if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+
+      buff = " -- hijo = ";
+      if (write(1, buff, strlen(buff)) == -1) perror();
+      if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
+      break;
+    }
+
+    /* char ir[16]; */
+    /* for(int i =0; i<10; ++i){ */
+    /*   int pid = fork(); */
+    /*   itoa(pid,ir); */
+    /*   write(1,ir,strlen(ir)); */
+    /* } */
+
+    /* buff = "\nhijo 2\n"; */
+    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
+    /* int pid2 = fork(); */
+    /* itoa(pid2, buff); */
+    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
   }
 
   /* ----------------------------------------------- */
