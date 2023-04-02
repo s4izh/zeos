@@ -36,10 +36,12 @@ int sys_getpid()
 {
 	return current()->PID;
 }
-
 int child_PID = 1000;
 
-int ret_from_fork();
+int ret_from_fork()
+{
+  return 0;
+}
 
 int sys_fork()
 {
@@ -101,16 +103,14 @@ int sys_fork()
 
   for (page = 0; page < NUM_PAG_DATA; ++page)
   {
-    /* no podemos mapear la misma pag todo el rato porque no */
-    /* se flushea el tlb hasta que hagamos set_cr3 */
-    set_ss_pag(parent_PT, PAG_LOG_INIT_CODE + NUM_PAG_CODE + page,
+    set_ss_pag(parent_PT, TOTAL_PAGES - NUM_PAG_DATA + page,
                get_frame(child_PT, PAG_LOG_INIT_DATA + page));
 
-    copy_data((PAG_LOG_INIT_DATA + page)<<12,
-              (PAG_LOG_INIT_CODE + NUM_PAG_CODE + page)<<12,
+    copy_data((void *)((PAG_LOG_INIT_DATA + page) << 12),
+              (void *)((TOTAL_PAGES - NUM_PAG_DATA + page) << 12),
               PAGE_SIZE);
 
-    del_ss_pag(parent_PT, PAG_LOG_INIT_CODE + NUM_PAG_CODE + page);
+    del_ss_pag(parent_PT, TOTAL_PAGES - NUM_PAG_DATA + page);
   }
 
   set_cr3(get_DIR(parent_task_s));
@@ -119,10 +119,11 @@ int sys_fork()
 
   child_task_s->PID = PID;
 
-  child_task_u->stack[KERNEL_STACK_SIZE - 1] = (unsigned long)&ret_from_fork;
+  child_task_s->state = ST_READY;
 
-  child_task_u->stack[KERNEL_STACK_SIZE - 2] = 0;
-  child_task_s->kernel_esp=(unsigned long)&child_task_u->stack[KERNEL_STACK_SIZE - 2];
+  child_task_u->stack[KERNEL_STACK_SIZE - 18] = (unsigned long)&ret_from_fork;
+  child_task_u->stack[KERNEL_STACK_SIZE - 19] = 0;
+  child_task_s->kernel_esp=(unsigned long)&child_task_u->stack[KERNEL_STACK_SIZE - 19];
 
   list_add(&child_task_s->anchor, &ready_queue);
 

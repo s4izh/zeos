@@ -108,6 +108,7 @@ void setIdt()
 void clock_routine(void){
   zeos_ticks++;
   zeos_show_clock();
+  schedule();
 }
 
 void keyboard_routine(void){

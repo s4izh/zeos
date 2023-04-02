@@ -134,16 +134,16 @@ sysenter_fin:
 ENTRY(task_switch)
     push %ebp
     movl %esp, %ebp
-    push %ebx
     push %esi
-    push %edi // estos 3 se salvan porque no los salva el compilador
+    push %edi
+    push %ebx // estos 3 se salvan porque no los salva el compilador
     pushl 8(%ebp) // direccion de retorno de new
     call inner_task_switch
-    addl $4, %esp
-    popl %edi
-    popl %esi 
+    // addl $4, %esp // se salta la direccion de retorno de new
     popl %ebx
-    popl %ebp
+    popl %ebx
+    popl %esi 
+    popl %edi
     ret
 
 /* void stack_swap(unsigned long *old_sp, unsigned long new_sp); */
@@ -151,16 +151,8 @@ ENTRY(stack_swap)
     // push %ebp
     // movl %esp, %ebp
     movl 4(%esp), %eax
-    movl %ebp, (%eax)
-    movl 8(%esp), %esp
+    movl %ebp, (%eax) // current->kernel_esp = %ebp
+    movl 8(%esp), %esp // %esp = new->kernel_esp
     // addl $4, %esp
     popl %ebp
-    ret
-
-/* void ret_from_fork(); */
-ENTRY(ret_from_fork)
-    push %ebp
-    movl %esp, %ebp
-    movl $0, %eax
-    pop %ebp
     ret

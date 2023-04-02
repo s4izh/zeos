@@ -12,6 +12,8 @@
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
 
+#define QUANTUM 10
+
 extern struct list_head free_queue;
 extern struct list_head ready_queue;
 extern struct list_head blocked;
@@ -23,6 +25,8 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   struct list_head anchor;
   unsigned long kernel_esp;
+  int quantum;
+  enum state_t state;
 };
 
 union task_union {
@@ -63,5 +67,10 @@ void sched_next_rr();
 void update_process_state_rr(struct task_struct *t, struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
+
+void schedule();
+
+int get_quantum(struct task_struct *t);
+void set_quantum(struct task_struct *t, int new_quantum);
 
 #endif  /* __SCHED_H__ */

@@ -4,6 +4,47 @@ char buff[24];
 
 int pid;
 
+void fork_test() {
+  char *buff;
+  buff = "\n\nFORK TEST\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Creando hijo 1\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+
+  int pid = fork();
+  char pidbuff[16];
+  itoa(pid, pidbuff);
+  /* if (write(1, pidbuff, strlen(pidbuff)) == -1) perror(); */
+  char ownpid[16];
+
+  char *testing_data = "fragmento de datos del padre copiado en el hijo\n";
+
+  switch(pid) {
+  case -1:
+    perror();
+    break;
+  case 0:
+    buff = "\nSoy el hijo con pid == ";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    itoa(getpid(), ownpid);
+    if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+    buff = "\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    if (write(1, testing_data, strlen(testing_data)) == -1) perror();
+    break;
+  default:
+    buff = "Soy el padre PID = ";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    itoa(getpid(), ownpid);
+    if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+
+    buff = " -- hijo = ";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
+    break;
+  }
+}
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -92,36 +133,7 @@ int __attribute__ ((__section__(".text.main")))
   /* --------------- FORK TEST ---------------- */
 
   if (test_fork) {
-    buff = "\n\nFORK TEST\n";
-    if (write(1, buff, strlen(buff)) == -1) perror();
-    buff = "Creando hijo 1\n";
-    if (write(1, buff, strlen(buff)) == -1) perror();
-
-    int pid = fork();
-    char pidbuff[16];
-    itoa(pid, pidbuff);
-
-    switch(pid) {
-    case -1:
-      perror();
-      break;
-    case 0:
-      buff = "\nSoy el hijo\n";
-      if (write(1, buff, strlen(buff)) == -1) perror();
-      break;
-    default:
-      buff = "padre PID = ";
-      if (write(1, buff, strlen(buff)) == -1) perror();
-      char ownpid[16];
-      itoa(getpid(), ownpid);
-      if (write(1, ownpid, strlen(ownpid)) == -1) perror();
-
-      buff = " -- hijo = ";
-      if (write(1, buff, strlen(buff)) == -1) perror();
-      if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
-      break;
-    }
-
+    fork_test();
     /* char ir[16]; */
     /* for(int i =0; i<10; ++i){ */
     /*   int pid = fork(); */
