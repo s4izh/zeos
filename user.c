@@ -43,9 +43,6 @@ void fork_test() {
     if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
     buff = "\n";
     if (write(1, buff, strlen(buff)) == -1) perror();
-
-
-
     break;
   }
 
@@ -147,24 +144,12 @@ int __attribute__ ((__section__(".text.main")))
     if (write(1, buff, strlen(buff)) == -1) perror();
   }
 
+
   /* --------------- FORK TEST ---------------- */
 
   if (test_fork) {
     fork_test();
     fork_test();
-    /* fork_test(); */
-    /* char ir[16]; */
-    /* for(int i =0; i<10; ++i){ */
-    /*   int pid = fork(); */
-    /*   itoa(pid,ir); */
-    /*   write(1,ir,strlen(ir)); */
-    /* } */
-
-    /* buff = "\nhijo 2\n"; */
-    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
-    /* int pid2 = fork(); */
-    /* itoa(pid2, buff); */
-    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
   }
 
   /* ----------------------------------------------- */

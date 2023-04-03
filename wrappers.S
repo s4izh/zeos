@@ -76,3 +76,12 @@ ENTRY(fork)
     jl handle_error
     popl %ebp
     ret
+
+/* void exit() */
+ENTRY(exit)
+    pushl %ebp
+    movl %esp, %ebp
+    movl $1, %eax
+    call syscall_sysenter
+    popl %ebp
+    ret

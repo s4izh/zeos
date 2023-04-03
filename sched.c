@@ -76,6 +76,8 @@ void init_idle (void)
   idle_task_s->PID = 0;
   idle_task_s->quantum = QUANTUM;
 
+  init_stats(&idle_task_s->stats);
+
   allocate_DIR(idle_task_s);
 
   // dirección de retorno
@@ -83,7 +85,8 @@ void init_idle (void)
   // ebp
   idle_task_u->stack[KERNEL_STACK_SIZE - 2] = 0;
 
-  idle_task_s->kernel_esp = (unsigned long)&idle_task_u->stack[KERNEL_STACK_SIZE - 2];
+  idle_task_s->kernel_esp = (unsigned long)&(idle_task_u->stack[KERNEL_STACK_SIZE - 2]);
+
 
   // puntero global a idle_task
   idle_task = idle_task_s;
@@ -105,9 +108,13 @@ void init_task1(void)
 
   init_task_s->state = ST_RUN;
   init_task_s->quantum = QUANTUM;
+  quantum_left = init_task_s->quantum;
+
+  init_stats(&init_task_s->stats);
 
   allocate_DIR(init_task_s); // allocate dir
   set_user_pages(init_task_s); // initializate adress space
+
 
   tss.esp0 = (unsigned long)&(init_task_u->stack[KERNEL_STACK_SIZE]);
   writeMSR(0x175, 0, (unsigned long)&(init_task_u->stack[KERNEL_STACK_SIZE]));
@@ -121,7 +128,7 @@ void init_free_queue()
   int i;
   for (i = 0; i < NR_TASKS; ++i)
   {
-    list_add(&(task[i].task.anchor), &free_queue);
+    list_add_tail(&(task[i].task.anchor), &free_queue);
   }
 }
 
@@ -154,20 +161,22 @@ void inner_task_switch(union task_union *new)
 
 void sched_next_rr()
 {
-
   struct task_struct *new;
   if (!list_empty(&ready_queue))
   {
+    struct task_struct *curr = current();
+
     struct list_head *new_head = list_first(&ready_queue);
     new = list_head_to_task_struct(new_head);
-
-    new->quantum = QUANTUM;
-
-    struct task_struct *curr = current();
     update_process_state_rr(new, NULL);
+
+    /* new->quantum = QUANTUM; */
+
     quantum_left = new->quantum;
 
+    /* struct task_struct *curr = current(); */
     update_process_state_rr(curr, &ready_queue);
+
     task_switch((union task_union *)new);
   }
   /* else */
@@ -186,7 +195,7 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest)
 
   if (dest != NULL)
   {
-    list_add(&t->anchor, dest);
+    list_add_tail(&t->anchor, dest);
     if (dest == &ready_queue)
     {
       t->state = ST_READY;
@@ -202,6 +211,9 @@ int needs_sched_rr()
 {
   if (quantum_left == 0 && !list_empty(&ready_queue))
     return 1;
+  if (quantum_left == 0)
+    quantum_left = get_quantum(current());
+
   return 0;
 }
 
@@ -214,8 +226,7 @@ void update_sched_data_rr()
 void schedule() {
   update_sched_data_rr();
   if (needs_sched_rr()) {
-    /* struct task_struct *curr = current(); */
-    /* update_process_state_rr(curr, &ready_queue); */
+    /* update_process_state_rr(current(), &ready_queue); */
     sched_next_rr();
   }
 }
@@ -228,4 +239,15 @@ int get_quantum(struct task_struct *t)
 void set_quantum(struct task_struct *t, int new_quantum)
 {
   t->quantum = new_quantum;
+}
+
+void init_stats(struct stats *s)
+{
+	s->user_ticks = 0;
+	s->system_ticks = 0;
+	s->blocked_ticks = 0;
+	s->ready_ticks = 0;
+	s->elapsed_total_ticks = get_ticks();
+	s->total_trans = 0;
+	s->remaining_ticks = get_ticks();
 }

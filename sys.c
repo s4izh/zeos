@@ -83,7 +83,7 @@ int sys_fork()
         free_frame(get_frame(child_PT, PAG_LOG_INIT_DATA + page));
         del_ss_pag(child_PT, PAG_LOG_INIT_DATA + page);
       }
-      list_add(free_queue_head, &free_queue);
+      list_add_tail(free_queue_head, &free_queue);
       return -EAGAIN;
     }
   }
@@ -119,12 +119,13 @@ int sys_fork()
 
   child_task_s->PID = PID;
   child_task_s->state = ST_READY;
-  /* child_task_s->quantum = parent_task_s->quantum; */
+  child_task_s->quantum = parent_task_s->quantum;
 
   child_task_u->stack[KERNEL_STACK_SIZE - 18] = (unsigned long)&ret_from_fork;
   child_task_u->stack[KERNEL_STACK_SIZE - 19] = 0;
   child_task_s->kernel_esp=(unsigned long)&child_task_u->stack[KERNEL_STACK_SIZE - 19];
 
+  init_stats(&child_task_s->stats);
   list_add_tail(&child_task_s->anchor, &ready_queue);
 
   return PID;
@@ -132,6 +133,20 @@ int sys_fork()
 
 void sys_exit()
 {
+  int page;
+
+  page_table_entry *current_PT = get_PT(current());
+
+  for (page = 0; page < NUM_PAG_DATA; page++)
+  {
+    free_frame(get_frame(current_PT, PAG_LOG_INIT_DATA + page));
+    del_ss_pag(current_PT, PAG_LOG_INIT_DATA + page);
+  }
+  list_add_tail(&current()->anchor, &free_queue);
+
+  current()->PID = -1;
+
+  sched_next_rr();
 }
 
 int sys_write(int fd, char *buffer, int size)
@@ -167,4 +182,28 @@ extern int zeos_ticks;
 int sys_gettime() 
 {
   return zeos_ticks;
+}
+
+void user_to_system(void)
+{
+  current()->stats.user_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = get_ticks();
+}
+
+void system_to_user(void)
+{
+  current()->stats.system_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = get_ticks();
+}
+
+void system_to_ready(void)
+{
+  current()->stats.system_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = get_ticks();
+}
+
+void ready_to_system(void)
+{
+  current()->stats.ready_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = get_ticks();
 }

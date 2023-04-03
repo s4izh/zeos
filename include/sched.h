@@ -8,6 +8,7 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <stats.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
@@ -27,6 +28,7 @@ struct task_struct {
   unsigned long kernel_esp;
   int quantum;
   enum state_t state;
+  struct stats stats;
 };
 
 union task_union {
@@ -52,8 +54,6 @@ struct task_struct * current();
 
 void task_switch(union task_union*t);
 
-void switch_stack(unsigned long *old_sp, unsigned long new_sp);
-
 struct task_struct *list_head_to_task_struct(struct list_head *l);
 
 int allocate_DIR(struct task_struct *t);
@@ -72,5 +72,7 @@ void schedule();
 
 int get_quantum(struct task_struct *t);
 void set_quantum(struct task_struct *t, int new_quantum);
+
+void init_stats(struct stats *s);
 
 #endif  /* __SCHED_H__ */
