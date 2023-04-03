@@ -25,6 +25,8 @@ struct task_struct *idle_task = NULL;
 void stack_swap();
 void writeMSR();
 
+int quantum_left = 0;
+
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t)
 {
@@ -95,14 +97,14 @@ void init_task1(void)
   struct task_struct *init_task_s = list_head_to_task_struct(free_queue_head);
 
   // crea un puntero a la union idle_task_u
-  // que se inicializa con la dirección de memoria de la
+
   // variable idle_task_s
   union task_union *init_task_u = (union task_union *)init_task_s;
 
   init_task_s->PID = 1;
-  init_task_s->quantum = QUANTUM;
 
   init_task_s->state = ST_RUN;
+  init_task_s->quantum = QUANTUM;
 
   allocate_DIR(init_task_s); // allocate dir
   set_user_pages(init_task_s); // initializate adress space
@@ -150,31 +152,22 @@ void inner_task_switch(union task_union *new)
   stack_swap(&current()->kernel_esp, (unsigned long)new->task.kernel_esp);
 }
 
-int quantum_left = 0;
-
 void sched_next_rr()
 {
-  struct task_struct *new;
 
+  struct task_struct *new;
   if (!list_empty(&ready_queue))
   {
     struct list_head *new_head = list_first(&ready_queue);
     new = list_head_to_task_struct(new_head);
 
-    struct task_struct *curr = current();
-
     new->quantum = QUANTUM;
 
-    /* set_quantum(new, QUANTUM); */
-
-    /* if (curr != idle_task) */
-    /*   update_process_state_rr(curr, &ready_queue); */
-
-    update_process_state_rr(curr, &ready_queue);
-
+    struct task_struct *curr = current();
     update_process_state_rr(new, NULL);
     quantum_left = new->quantum;
 
+    update_process_state_rr(curr, &ready_queue);
     task_switch((union task_union *)new);
   }
   /* else */
@@ -193,11 +186,13 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest)
 
   if (dest != NULL)
   {
-      list_add(&t->anchor, dest);
-      if (dest == &ready_queue)
-        t->state = ST_READY;
-      else
-        t->state = ST_BLOCKED;
+    list_add(&t->anchor, dest);
+    if (dest == &ready_queue)
+    {
+      t->state = ST_READY;
+    }
+    else
+      t->state = ST_BLOCKED;
   }
   else
     t->state = ST_RUN;
@@ -205,15 +200,9 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest)
 
 int needs_sched_rr()
 {
-  if (quantum_left == 0)
+  if (quantum_left == 0 && !list_empty(&ready_queue))
     return 1;
-
-	if(list_empty(&ready_queue)){
-		quantum_left = current()->quantum;
-		return 0;
-	}
-
-  else return 0;
+  return 0;
 }
 
 void update_sched_data_rr()
@@ -225,6 +214,8 @@ void update_sched_data_rr()
 void schedule() {
   update_sched_data_rr();
   if (needs_sched_rr()) {
+    /* struct task_struct *curr = current(); */
+    /* update_process_state_rr(curr, &ready_queue); */
     sched_next_rr();
   }
 }

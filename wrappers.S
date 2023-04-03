@@ -72,5 +72,7 @@ ENTRY(fork)
     movl %esp, %ebp
     movl $2, %eax
     call syscall_sysenter
+    cmpl $0, %eax
+    jl handle_error
     popl %ebp
     ret

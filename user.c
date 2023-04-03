@@ -8,7 +8,7 @@ void fork_test() {
   char *buff;
   buff = "\n\nFORK TEST\n";
   if (write(1, buff, strlen(buff)) == -1) perror();
-  buff = "Creando hijo 1\n";
+  buff = "Creando hijo\n";
   if (write(1, buff, strlen(buff)) == -1) perror();
 
   int pid = fork();
@@ -24,7 +24,7 @@ void fork_test() {
     perror();
     break;
   case 0:
-    buff = "\nSoy el hijo con pid == ";
+    buff = "\nHIJO: getpid == ";
     if (write(1, buff, strlen(buff)) == -1) perror();
     itoa(getpid(), ownpid);
     if (write(1, ownpid, strlen(ownpid)) == -1) perror();
@@ -33,16 +33,33 @@ void fork_test() {
     if (write(1, testing_data, strlen(testing_data)) == -1) perror();
     break;
   default:
-    buff = "Soy el padre PID = ";
+    buff = "PADRE: getpid == ";
     if (write(1, buff, strlen(buff)) == -1) perror();
     itoa(getpid(), ownpid);
     if (write(1, ownpid, strlen(ownpid)) == -1) perror();
 
-    buff = " -- hijo = ";
+    buff = " -- pid de mi hijo == ";
     if (write(1, buff, strlen(buff)) == -1) perror();
     if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
+    buff = "\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+
+
+
     break;
   }
+
+  buff = "INFO: El codigo siguiente lo tendrian que ejecutar padre e hijo\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+
+  buff = "Saludos desde getpid == ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+
+  itoa(getpid(), ownpid);
+  if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
 }
 
 int __attribute__ ((__section__(".text.main")))
@@ -134,6 +151,8 @@ int __attribute__ ((__section__(".text.main")))
 
   if (test_fork) {
     fork_test();
+    fork_test();
+    /* fork_test(); */
     /* char ir[16]; */
     /* for(int i =0; i<10; ++i){ */
     /*   int pid = fork(); */

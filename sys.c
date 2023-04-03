@@ -118,14 +118,14 @@ int sys_fork()
   PID = child_PID++;
 
   child_task_s->PID = PID;
-
   child_task_s->state = ST_READY;
+  /* child_task_s->quantum = parent_task_s->quantum; */
 
   child_task_u->stack[KERNEL_STACK_SIZE - 18] = (unsigned long)&ret_from_fork;
   child_task_u->stack[KERNEL_STACK_SIZE - 19] = 0;
   child_task_s->kernel_esp=(unsigned long)&child_task_u->stack[KERNEL_STACK_SIZE - 19];
 
-  list_add(&child_task_s->anchor, &ready_queue);
+  list_add_tail(&child_task_s->anchor, &ready_queue);
 
   return PID;
 }

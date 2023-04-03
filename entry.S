@@ -139,18 +139,18 @@ ENTRY(task_switch)
     push %ebx // estos 3 se salvan porque no los salva el compilador
     pushl 8(%ebp) // direccion de retorno de new
     call inner_task_switch
-    // addl $4, %esp // se salta la direccion de retorno de new
-    popl %ebx
+    addl $4, %esp // se salta la direccion de retorno de new
     popl %ebx
     popl %esi 
     popl %edi
+    popl %ebp
     ret
 
 /* void stack_swap(unsigned long *old_sp, unsigned long new_sp); */
 ENTRY(stack_swap)
     // push %ebp
     // movl %esp, %ebp
-    movl 4(%esp), %eax
+    movl 4(%esp), %eax // %eax = &current->kernel_esp
     movl %ebp, (%eax) // current->kernel_esp = %ebp
     movl 8(%esp), %esp // %esp = new->kernel_esp
     // addl $4, %esp

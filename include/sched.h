@@ -12,7 +12,7 @@
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
 
-#define QUANTUM 10
+#define QUANTUM 30
 
 extern struct list_head free_queue;
 extern struct list_head ready_queue;
