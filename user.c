@@ -4,6 +4,63 @@ char buff[24];
 
 int pid;
 
+void print_stats()
+{
+  struct stats st;
+  get_stats(getpid(), &st);
+  char *buff;
+  buff = "\n\nSTATS TEST\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "PID: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(getpid(), buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "User ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.user_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "System ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.system_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Blocked ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.blocked_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Ready ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.ready_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Elapsed total ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.elapsed_total_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Total trans: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.total_trans, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "Remaining ticks: ";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  itoa(st.remaining_ticks, buff);
+  if (write(1, buff, strlen(buff)) == -1) perror();
+  buff = "\n";
+  if (write(1, buff, strlen(buff)) == -1) perror();
+}
+
 void fork_test() {
   char *buff;
   buff = "\n\nFORK TEST\n";
@@ -43,20 +100,44 @@ void fork_test() {
     if (write(1, pidbuff, strlen(pidbuff)) == -1) perror();
     buff = "\n";
     if (write(1, buff, strlen(buff)) == -1) perror();
+
+    int i;
+    for (i = 0; i < 1000; i++) {
+      /* if (i%100 == 0) { */
+        buff = "\nPADRE con pid==";
+        if (write(1, buff, strlen(buff)) == -1) perror();
+        if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+        buff = " --- iteracion: ";
+        if (write(1, buff, strlen(buff)) == -1) perror();
+        char it[16];
+        itoa(i, it);
+        if (write(1, it, strlen(it)) == -1) perror();
+      /* } */
+      /* buff = " "; */
+      /* if (write(1, buff, strlen(buff)) == -1) perror(); */
+    }
+    /* exit(); */
     break;
   }
 
   buff = "INFO: El codigo siguiente lo tendrian que ejecutar padre e hijo\n";
   if (write(1, buff, strlen(buff)) == -1) perror();
 
-  buff = "Saludos desde getpid == ";
+  buff = "INFO: getpid == ";
   if (write(1, buff, strlen(buff)) == -1) perror();
 
   itoa(getpid(), ownpid);
   if (write(1, ownpid, strlen(ownpid)) == -1) perror();
 
+  print_stats();
+
   buff = "\n";
   if (write(1, buff, strlen(buff)) == -1) perror();
+
+  if (pid != 0) {
+    buff = "\nSOY EL PADRE\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+  }
 }
 
 int __attribute__ ((__section__(".text.main")))
@@ -150,9 +231,18 @@ int __attribute__ ((__section__(".text.main")))
   if (test_fork) {
     fork_test();
     fork_test();
+    /* fork_test(); */
+
+    /* print_stats(); */
+
+    char ownpid[16];
+    buff = "\nFINAL TEST FORK\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
+    itoa(getpid(), ownpid);
+    if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+    buff = "\n";
+    if (write(1, buff, strlen(buff)) == -1) perror();
   }
-
   /* ----------------------------------------------- */
-
   while (1) { };
 }

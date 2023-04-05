@@ -85,3 +85,18 @@ ENTRY(exit)
     call syscall_sysenter
     popl %ebp
     ret
+
+/* void get_stats(int pid, struct stats *st) */
+ENTRY(get_stats)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;
+	movl $35, %eax
+	movl 0x8(%ebp), %ebx
+	movl 0xC(%ebp), %ecx
+	call syscall_sysenter
+	popl %ebx
+  cmpl $0, %eax
+  jl handle_error
+	popl %ebp
+	ret

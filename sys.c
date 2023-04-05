@@ -135,14 +135,16 @@ void sys_exit()
 {
   int page;
 
-  page_table_entry *current_PT = get_PT(current());
+  struct task_struct *curr = current();
+
+  page_table_entry *current_PT = get_PT(curr);
 
   for (page = 0; page < NUM_PAG_DATA; page++)
   {
     free_frame(get_frame(current_PT, PAG_LOG_INIT_DATA + page));
     del_ss_pag(current_PT, PAG_LOG_INIT_DATA + page);
   }
-  list_add_tail(&current()->anchor, &free_queue);
+  list_add_tail(&curr->anchor, &free_queue);
 
   current()->PID = -1;
 
@@ -186,24 +188,37 @@ int sys_gettime()
 
 void user_to_system(void)
 {
-  current()->stats.user_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
+  unsigned long ticks = get_ticks();
+  current()->stats.user_ticks += ticks-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = ticks;
 }
 
 void system_to_user(void)
 {
-  current()->stats.system_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
+  unsigned long ticks = get_ticks();
+  current()->stats.system_ticks += ticks-current()->stats.elapsed_total_ticks;
+  current()->stats.elapsed_total_ticks = ticks;
 }
 
-void system_to_ready(void)
-{
-  current()->stats.system_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
-}
+extern int quantum_left;
 
-void ready_to_system(void)
+int sys_get_stats(int pid, struct stats *st)
 {
-  current()->stats.ready_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
+  if (!access_ok(VERIFY_WRITE, st, sizeof(struct stats)))
+    return -EFAULT;
+
+  if (pid < 0)
+    return -EINVAL;
+
+  int i;
+  for (i = 0; i < NR_TASKS; i++)
+  {
+    if (task[i].task.PID == pid)
+    {
+      task[i].task.stats.remaining_ticks = quantum_left;
+      copy_to_user(&(task[i].task.stats), st, sizeof(struct stats));
+      return 0;
+    }
+  }
+  return -ESRCH;
 }

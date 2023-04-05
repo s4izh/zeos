@@ -78,17 +78,29 @@
 
 // 32
 ENTRY(clock_handler)
-   SAVE_ALL
-   EOI
-   call clock_routine
-   RESTORE_ALL
-   iret
+  SAVE_ALL
+  EOI
+  pushl %eax
+  call user_to_system
+  popl %eax
+  call clock_routine
+  pushl %eax
+  call system_to_user
+  popl %eax
+  RESTORE_ALL
+  iret
 
 // 33
 ENTRY(keyboard_handler)
     SAVE_ALL
+    pushl %eax
+    call user_to_system
+    popl %eax
     call keyboard_routine
     EOI
+    pushl %eax
+    call system_to_user
+    popl %eax
     RESTORE_ALL
     iret
 
@@ -143,13 +155,14 @@ ENTRY(task_switch)
     popl %ebx
     popl %esi 
     popl %edi
+    //movl %ebp, %esp
     popl %ebp
     ret
 
 /* void stack_swap(unsigned long *old_sp, unsigned long new_sp); */
 ENTRY(stack_swap)
-    // push %ebp
-    // movl %esp, %ebp
+    //push %ebp
+    //movl %esp, %ebp
     movl 4(%esp), %eax // %eax = &current->kernel_esp
     movl %ebp, (%eax) // current->kernel_esp = %ebp
     movl 8(%esp), %esp // %esp = new->kernel_esp
