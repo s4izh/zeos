@@ -168,15 +168,8 @@ void sched_next_rr()
 
   new->state = ST_RUN;
 
-  unsigned long ticks = get_ticks();
-
-  current()->stats.system_ticks += ticks - current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = ticks;
-
-  new->stats.system_ticks += ticks - new->stats.elapsed_total_ticks;
-  new->stats.elapsed_total_ticks = ticks;
-
-  new->stats.total_trans++;
+  system_to_ready(current());
+  ready_to_system(new);
 
   quantum_left = new->quantum;
   task_switch((union task_union *)new);
@@ -252,14 +245,17 @@ void init_stats(struct stats *s)
 	s->remaining_ticks = ticks;
 }
 
-void system_to_ready(void)
+void system_to_ready(struct task_struct *t)
 {
-  current()->stats.system_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
+  unsigned long ticks = get_ticks();
+  t->stats.system_ticks += ticks - t->stats.elapsed_total_ticks;
+  t->stats.elapsed_total_ticks = ticks;
 }
 
-void ready_to_system(void)
+void ready_to_system(struct task_struct *t)
 {
-  current()->stats.ready_ticks += get_ticks()-current()->stats.elapsed_total_ticks;
-  current()->stats.elapsed_total_ticks = get_ticks();
+  unsigned long ticks = get_ticks();
+  t->stats.system_ticks += ticks - t->stats.elapsed_total_ticks;
+  t->stats.elapsed_total_ticks = ticks;
+  t->stats.total_trans++;
 }

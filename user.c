@@ -88,6 +88,7 @@ void fork_test() {
     buff = "\n";
     if (write(1, buff, strlen(buff)) == -1) perror();
     if (write(1, testing_data, strlen(testing_data)) == -1) perror();
+    /* exit(); */
     break;
   default:
     buff = "PADRE: getpid == ";
@@ -101,43 +102,28 @@ void fork_test() {
     buff = "\n";
     if (write(1, buff, strlen(buff)) == -1) perror();
 
+    itoa(getpid(), ownpid);
     int i;
     for (i = 0; i < 1000; i++) {
       /* if (i%100 == 0) { */
-        buff = "\nPADRE con pid==";
-        if (write(1, buff, strlen(buff)) == -1) perror();
-        if (write(1, ownpid, strlen(ownpid)) == -1) perror();
-        buff = " --- iteracion: ";
-        if (write(1, buff, strlen(buff)) == -1) perror();
-        char it[16];
-        itoa(i, it);
-        if (write(1, it, strlen(it)) == -1) perror();
-      /* } */
-      /* buff = " "; */
-      /* if (write(1, buff, strlen(buff)) == -1) perror(); */
+      buff = "\nPADRE con pid==";
+      if (write(1, buff, strlen(buff)) == -1) perror();
+      if (write(1, ownpid, strlen(ownpid)) == -1) perror();
+      buff = " --- iteracion: ";
+      if (write(1, buff, strlen(buff)) == -1) perror();
+      char it[16];
+      itoa(i, it);
+      if (write(1, it, strlen(it)) == -1) perror();
     }
-    /* exit(); */
     break;
   }
 
-  buff = "INFO: El codigo siguiente lo tendrian que ejecutar padre e hijo\n";
+  buff = "\nINFO: El codigo siguiente lo tendrian que ejecutar padre e hijo\n";
   if (write(1, buff, strlen(buff)) == -1) perror();
-
-  buff = "INFO: getpid == ";
+  buff = "PROCESO_ACTUAL: getpid == ";
   if (write(1, buff, strlen(buff)) == -1) perror();
-
   itoa(getpid(), ownpid);
   if (write(1, ownpid, strlen(ownpid)) == -1) perror();
-
-  print_stats();
-
-  buff = "\n";
-  if (write(1, buff, strlen(buff)) == -1) perror();
-
-  if (pid != 0) {
-    buff = "\nSOY EL PADRE\n";
-    if (write(1, buff, strlen(buff)) == -1) perror();
-  }
 }
 
 int __attribute__ ((__section__(".text.main")))
@@ -231,18 +217,24 @@ int __attribute__ ((__section__(".text.main")))
   if (test_fork) {
     fork_test();
     fork_test();
-    /* fork_test(); */
 
-    /* print_stats(); */
+    print_stats();
 
-    char ownpid[16];
-    buff = "\nFINAL TEST FORK\n";
-    if (write(1, buff, strlen(buff)) == -1) perror();
-    itoa(getpid(), ownpid);
-    if (write(1, ownpid, strlen(ownpid)) == -1) perror();
-    buff = "\n";
-    if (write(1, buff, strlen(buff)) == -1) perror();
+    /* buff = "\nFINAL TEST FORK\n"; */
+    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
+
+    /* buff = "PID: "; */
+    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
+
+    /* char ownpid[16]; */
+    /* itoa(getpid(), ownpid); */
+    /* if (write(1, ownpid, strlen(ownpid)) == -1) perror(); */
+
+    /* buff = "\n"; */
+    /* if (write(1, buff, strlen(buff)) == -1) perror(); */
   }
   /* ----------------------------------------------- */
+
+  exit();
   while (1) { };
 }

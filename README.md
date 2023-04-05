@@ -28,7 +28,7 @@ this project is to extend its functionalities.
 - [x] Implement the task switch function.
 - [x] Implement the inner_task_switch function.
 - [x] Implement the getpid system call.
-- [ ] Implement the fork system call.
-- [ ] Implement process scheduling.
-- [ ] Implement the exit system call.
-- [ ] Implement the getstats system call.
+- [x] Implement the fork system call.
+- [x] Implement process scheduling.
+- [x] Implement the exit system call.
+- [x] Implement the getstats system call.

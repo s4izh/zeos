@@ -75,8 +75,7 @@ void set_quantum(struct task_struct *t, int new_quantum);
 
 void init_stats(struct stats *s);
 
-unsigned long returnEBP(void);
-
-void writeESP(unsigned long kernel_esp);
+void system_to_ready(struct task_struct *t);
+void ready_to_system(struct task_struct *t);
 
 #endif  /* __SCHED_H__ */
