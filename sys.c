@@ -151,6 +151,8 @@ void sys_exit()
   sched_next_rr();
 }
 
+char buff[BUFF_SIZE]; // 4096
+
 int sys_write(int fd, char *buffer, int size)
 {
     int check = check_fd(fd, ESCRIPTURA);
@@ -163,7 +165,6 @@ int sys_write(int fd, char *buffer, int size)
     if (size <= 0)
         return -EINVAL; // parámetros inválido
 
-    char buff[BUFF_SIZE]; // 4096
     int bytesleft = size;
     int byteswritten = 0;
 
@@ -220,5 +221,5 @@ int sys_get_stats(int pid, struct stats *st)
       return 0;
     }
   }
-  return -ESRCH;
+  return -ESRCH; // No such process
 }

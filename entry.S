@@ -155,17 +155,13 @@ ENTRY(task_switch)
     popl %ebx
     popl %esi 
     popl %edi
-    //movl %ebp, %esp
     popl %ebp
     ret
 
 /* void stack_swap(unsigned long *old_sp, unsigned long new_sp); */
 ENTRY(stack_swap)
-    //push %ebp
-    //movl %esp, %ebp
     movl 4(%esp), %eax // %eax = &current->kernel_esp
     movl %ebp, (%eax) // current->kernel_esp = %ebp
     movl 8(%esp), %esp // %esp = new->kernel_esp
-    // addl $4, %esp
     popl %ebp
     ret

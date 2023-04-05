@@ -68,10 +68,6 @@ void init_idle (void)
   list_del(free_queue_head);
 
   struct task_struct *idle_task_s = list_head_to_task_struct(free_queue_head);
-
-  // crea un puntero a la union idle_task_u
-  // que se inicializa con la dirección de memoria de la
-  // variable idle_task_s
   union task_union *idle_task_u = (union task_union *)idle_task_s;
 
   idle_task_s->PID = QUANTUM;
@@ -99,10 +95,6 @@ void init_task1(void)
   list_del(free_queue_head);
 
   struct task_struct *init_task_s = list_head_to_task_struct(free_queue_head);
-
-  // crea un puntero a la union idle_task_u
-
-  // variable idle_task_s
   union task_union *init_task_u = (union task_union *)init_task_s;
 
   init_task_s->PID = 1;
