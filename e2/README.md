@@ -1,4 +1,4 @@
-# e2
+# E2
 
 ## Mechanisms to enter the system
 

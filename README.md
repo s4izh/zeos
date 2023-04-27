@@ -4,7 +4,8 @@ ZeOS is the skeleton of a simple Operating System based on a Linux 2.4
 kernel and developed for the intel 80386 architecture. The goal of
 this project is to extend its functionalities.
 
-Inside each directory there is more info about each part of the project.
+Inside each directory there is more information about the
+milestones completed at each stage of the project.
 
 - [e2](e2/README.md)
 - [project](project/README.md)
