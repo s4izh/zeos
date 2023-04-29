@@ -100,3 +100,23 @@ ENTRY(get_stats)
 	popl %ebp
 	ret
 
+/* int read(char* b, int maxchars) */
+ENTRY(read)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;  // Save EBX, ESI and EDI if modified
+	movl $36, %eax
+	movl 0x8(%ebp), %ebx;	//pid
+	movl 0xC(%ebp), %ecx;	//st
+	call syscall_sysenter
+	popl %ebx
+	test %eax, %eax
+	js nok	// if (eax < 0) -->
+	popl %ebp
+	ret
+
+/* int gotoxy(int x, int y) */
+// ENTRY(gotoxy)
+
+/* int set_color(int fg, int bg) */
+// ENTRY(set_color)

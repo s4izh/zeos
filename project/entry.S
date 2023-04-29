@@ -95,6 +95,10 @@ ENTRY(keyboard_handler)
       RESTORE_ALL
       iret;
 
+// 14
+ENTRY(page_fault_handler2)
+    call page_fault_routine2
+
 ENTRY(system_call_handler)
 	push $__USER_DS
 	push %ebp

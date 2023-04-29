@@ -95,6 +95,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 void clock_handler();
 void keyboard_handler();
 void system_call_handler();
+void page_fault_handler2();
 
 void setMSR(unsigned long msr_number, unsigned long high, unsigned long low);
 
@@ -114,11 +115,44 @@ void setIdt()
   set_handlers();
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+  setInterruptHandler(14, page_fault_handler2, 0);
   setInterruptHandler(32, clock_handler, 0);
   setInterruptHandler(33, keyboard_handler, 0);
 
   setSysenter();
 
   set_idt_reg(&idtR);
+}
+
+void int_to_hex(unsigned int num, char *hex_string) {
+    const char *hex_digits = "0123456789abcdef";
+    int i = 0;
+
+    while (num > 0) {
+        int digit = num % 16;
+        hex_string[i++] = hex_digits[digit];
+        num /= 16;
+    }
+    while (i < sizeof(int) * 2) {
+        hex_string[i++] = '0';
+    }
+    int len = i;
+    for (i = 0; i < len / 2; i++) {
+        char tmp = hex_string[i];
+        hex_string[i] = hex_string[len - i - 1];
+        hex_string[len - i - 1] = tmp;
+    }
+    hex_string[len] = '\0';
+}
+
+void page_fault_routine2(unsigned int error, unsigned int eip) {
+    char buff[8];
+    int_to_hex(eip, buff);
+    printk("Process generates a PAGE FAULT expection at EIP: 0x");
+    printk(buff);
+    /* itoa(error, buff); */
+    /* printk("\nError: "); */
+    /* printk(buff); */
+    while(1);
 }
 
