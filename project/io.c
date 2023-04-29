@@ -63,3 +63,36 @@ void printk(char *string)
   for (i = 0; string[i]; i++)
     printc(string[i]);
 }
+
+#define BUFF_SIZE 10
+
+char circular_buff[BUFF_SIZE];
+int buff_full = 0;
+int head, tail = 0;
+
+void write_buff(char c) {
+  if (!buff_full) {
+    circular_buff[head] = c;
+    head = (head + 1) % BUFF_SIZE;
+    if (head == tail) buff_full = 1;
+  }
+}
+
+int read_buff(char* c, int size) {
+  // empty buffer
+  if ((head == tail) && (buff_full != 1)){
+    return -1;
+  } 
+  int c_read = 0;
+  int possible_reads = head - tail;
+  if (possible_reads < 0) possible_reads = BUFF_SIZE + possible_reads;
+  while (c_read < possible_reads)
+  {
+    *c = circular_buff[tail];
+    tail = (tail + 1) % BUFF_SIZE;
+    c++; 
+    c_read++;
+  }
+  buff_full = 0;
+  return c_read;
+}

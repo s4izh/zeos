@@ -105,7 +105,7 @@ ENTRY(read)
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx;  // Save EBX, ESI and EDI if modified
-	movl $36, %eax
+	movl $0, %eax
 	movl 0x8(%ebp), %ebx;	//pid
 	movl 0xC(%ebp), %ecx;	//st
 	call syscall_sysenter

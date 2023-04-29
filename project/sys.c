@@ -236,3 +236,10 @@ int sys_get_stats(int pid, struct stats *st)
   }
   return -ESRCH; /*ESRCH */
 }
+
+int sys_read(char* c, int size)
+{
+  if (!access_ok(VERIFY_WRITE, c, sizeof(char*))) return -EFAULT;
+  return read_buff(c, size);
+}
+
