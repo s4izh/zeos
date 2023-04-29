@@ -64,16 +64,16 @@ void printk(char *string)
     printc(string[i]);
 }
 
-#define BUFF_SIZE 10
+#define CIRCULAR_BUFF_SIZE 64
 
-char circular_buff[BUFF_SIZE];
+char circular_buff[CIRCULAR_BUFF_SIZE];
 int buff_full = 0;
 int head, tail = 0;
 
 void write_buff(char c) {
   if (!buff_full) {
     circular_buff[head] = c;
-    head = (head + 1) % BUFF_SIZE;
+    head = (head + 1) % CIRCULAR_BUFF_SIZE;
     if (head == tail) buff_full = 1;
   }
 }
@@ -83,15 +83,16 @@ int read_buff(char* c, int size) {
   if ((head == tail) && (buff_full != 1)){
     return -1;
   } 
-  int c_read = 0;
+
+  int c_read;
   int possible_reads = head - tail;
-  if (possible_reads < 0) possible_reads = BUFF_SIZE + possible_reads;
-  while (c_read < possible_reads)
+  if (possible_reads < 0) possible_reads = CIRCULAR_BUFF_SIZE + possible_reads;
+
+  for (c_read = 0; c_read < possible_reads; c_read++)
   {
     *c = circular_buff[tail];
-    tail = (tail + 1) % BUFF_SIZE;
+    tail = (tail + 1) % CIRCULAR_BUFF_SIZE;
     c++; 
-    c_read++;
   }
   buff_full = 0;
   return c_read;
