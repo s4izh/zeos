@@ -88,7 +88,11 @@ int read_buff(char* c, int size) {
   int possible_reads = head - tail;
   if (possible_reads < 0) possible_reads = CIRCULAR_BUFF_SIZE + possible_reads;
 
-  for (c_read = 0; c_read < possible_reads; c_read++)
+  int todo;
+  if (size >= possible_reads) todo = possible_reads;
+  else todo = size;
+
+  for (c_read = 0; c_read < todo; c_read++)
   {
     *c = circular_buff[tail];
     tail = (tail + 1) % CIRCULAR_BUFF_SIZE;
