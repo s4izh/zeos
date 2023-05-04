@@ -243,3 +243,19 @@ int sys_read(char* c, int size)
   return read_buff(c, size);
 }
 
+int sys_gotoxy(int x, int y)
+{
+  if (gotoxy(x, y) == -1)
+    return -EINVAL;
+  else
+    return 0;
+}
+
+int sys_set_color(int fg, int bg)
+{
+  if (set_color(fg, bg) == -1)
+    return -EINVAL;
+  else
+    return 0;
+}
+

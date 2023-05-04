@@ -106,8 +106,8 @@ ENTRY(read)
 	movl %esp, %ebp
 	pushl %ebx;  // Save EBX, ESI and EDI if modified
 	movl $0, %eax
-	movl 0x8(%ebp), %ebx;	//pid
-	movl 0xC(%ebp), %ecx;	//st
+	movl 0x8(%ebp), %ebx;
+	movl 0xC(%ebp), %ecx;
 	call syscall_sysenter
 	popl %ebx
 	test %eax, %eax
@@ -116,7 +116,31 @@ ENTRY(read)
 	ret
 
 /* int gotoxy(int x, int y) */
-// ENTRY(gotoxy)
-
+ENTRY(gotoxy)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;  // Save EBX, ESI and EDI if modified
+	movl $36, %eax
+	movl 0x8(%ebp), %ebx;
+	movl 0xC(%ebp), %ecx;
+	call syscall_sysenter
+	popl %ebx
+	test %eax, %eax
+	js nok	// if (eax < 0) -->
+	popl %ebp
+	ret
+    
 /* int set_color(int fg, int bg) */
-// ENTRY(set_color)
+ENTRY(set_color)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;  // Save EBX, ESI and EDI if modified
+	movl $37, %eax
+	movl 0x8(%ebp), %ebx;
+	movl 0xC(%ebp), %ecx;
+	call syscall_sysenter
+	popl %ebx
+	test %eax, %eax
+	js nok	// if (eax < 0) -->
+	popl %ebp
+	ret
