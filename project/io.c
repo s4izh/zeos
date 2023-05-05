@@ -6,6 +6,8 @@
 
 #include <types.h>
 
+#include <errno.h>
+
 /**************/
 /** Screen  ***/
 /**************/
@@ -70,39 +72,31 @@ void printk(char *string)
 #define CIRCULAR_BUFF_SIZE 64
 
 char circular_buff[CIRCULAR_BUFF_SIZE];
-int buff_full = 0;
+int elements = 0;
 int head, tail = 0;
 
 void write_buff(char c) {
-  if (!buff_full) {
-    circular_buff[head] = c;
-    head = (head + 1) % CIRCULAR_BUFF_SIZE;
-    if (head == tail) buff_full = 1;
-  }
+  circular_buff[head] = c;
+  head = (head + 1) % CIRCULAR_BUFF_SIZE;
+  if (elements == CIRCULAR_BUFF_SIZE) 
+    tail = (tail + 1) % CIRCULAR_BUFF_SIZE;
+  else
+    ++elements;
 }
 
 int read_buff(char* c, int size) {
   // empty buffer
-  if ((head == tail) && (buff_full != 1)){
+  if (elements == 0){
     return -1;
   } 
 
   int c_read;
-  int possible_reads = head - tail;
-  if (possible_reads < 0) possible_reads = CIRCULAR_BUFF_SIZE + possible_reads;
-
-  int todo;
-  /* if (size >= possible_reads) todo = possible_reads; */
-  if (size > possible_reads) return -1;
-  else todo = size;
-
-  for (c_read = 0; c_read < todo; c_read++)
+  for (c_read = 0; c_read < size && elements > 0; c_read++)
   {
-    *c = circular_buff[tail];
+    c[c_read] = circular_buff[tail];
     tail = (tail + 1) % CIRCULAR_BUFF_SIZE;
-    c++; 
+    --elements;
   }
-  buff_full = 0;
   return c_read;
 }
 
@@ -114,7 +108,7 @@ int gotoxy(int _x, int _y)
     y = (Byte) _y & 0x00FF;
     return 0;
   }
-  return -1;
+  return -EINVAL;
 }
 
 int set_color(int fg, int bg)
@@ -125,5 +119,5 @@ int set_color(int fg, int bg)
     bg_color = (char) bg;
     return 0;
   }
-  return -1;
+  return -EINVAL;
 }

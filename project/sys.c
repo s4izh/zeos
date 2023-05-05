@@ -239,23 +239,17 @@ int sys_get_stats(int pid, struct stats *st)
 
 int sys_read(char* c, int size)
 {
-  if (!access_ok(VERIFY_WRITE, c, sizeof(char*))) return -EFAULT;
+  if (!access_ok(VERIFY_WRITE, c, sizeof(c))) return -EFAULT;
+  if (size <= 0) return -EINVAL;
   return read_buff(c, size);
 }
 
 int sys_gotoxy(int x, int y)
 {
-  if (gotoxy(x, y) == -1)
-    return -EINVAL;
-  else
-    return 0;
+  return gotoxy(x, y);
 }
 
 int sys_set_color(int fg, int bg)
 {
-  if (set_color(fg, bg) == -1)
-    return -EINVAL;
-  else
-    return 0;
+  return set_color(fg, bg);
 }
-
