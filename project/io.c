@@ -76,7 +76,7 @@ int elements = 0;
 int head, tail = 0;
 
 // sobreescribiendo
-void write_buff(char c) {
+void write_buff2(char c) {
   circular_buff[head] = c;
   head = (head + 1) % CIRCULAR_BUFF_SIZE;
   if (elements == CIRCULAR_BUFF_SIZE) 
@@ -86,7 +86,7 @@ void write_buff(char c) {
 }
 
 // sin sobreescribir
-void write_buff2(char c) {
+void write_buff(char c) {
   if (elements == CIRCULAR_BUFF_SIZE) 
     return;
 
