@@ -12,6 +12,8 @@
 #define NUM_PAG_DATA 20
 #define PAGE_SIZE 0x1000
 
+#define SHARED_PAGES 10
+
 /* Memory distribution */
 /***********************/
 

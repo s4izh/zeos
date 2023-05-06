@@ -206,6 +206,12 @@ int init_frames( void )
     for (i=0; i<NUM_PAG_KERNEL; i++) {
         phys_mem[i] = USED_FRAME;
     }
+    
+    /* shared memory, marcamos como usadas las 10 últimas */
+    for (i=TOTAL_PAGES-SHARED_PAGES; i<TOTAL_PAGES; i++) {
+        phys_mem[i] = USED_FRAME;
+    }
+
     return 0;
 }
 
