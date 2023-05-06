@@ -75,6 +75,7 @@ char circular_buff[CIRCULAR_BUFF_SIZE];
 int elements = 0;
 int head, tail = 0;
 
+// sobreescribiendo
 void write_buff(char c) {
   circular_buff[head] = c;
   head = (head + 1) % CIRCULAR_BUFF_SIZE;
@@ -84,10 +85,20 @@ void write_buff(char c) {
     ++elements;
 }
 
+// sin sobreescribir
+void write_buff2(char c) {
+  if (elements == CIRCULAR_BUFF_SIZE) 
+    return;
+
+  circular_buff[head] = c;
+  head = (head + 1) % CIRCULAR_BUFF_SIZE;
+  ++elements;
+}
+
 int read_buff(char* c, int size) {
   // empty buffer
   if (elements == 0){
-    return -1;
+    return 0;
   } 
 
   int c_read;

@@ -239,8 +239,8 @@ int sys_get_stats(int pid, struct stats *st)
 
 int sys_read(char* c, int size)
 {
-  if (!access_ok(VERIFY_WRITE, c, sizeof(c))) return -EFAULT;
-  if (size <= 0) return -EINVAL;
+  if (!access_ok(VERIFY_WRITE, c, sizeof(char*))) return -EFAULT;
+  if (size < 0) return -EINVAL;
   return read_buff(c, size);
 }
 
