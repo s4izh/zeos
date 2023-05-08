@@ -254,26 +254,22 @@ int sys_set_color(int fg, int bg)
   return set_color(fg, bg);
 }
 
-int sys_shmat(int id, void *addr)
+void* sys_shmat(int id, void *addr)
 {
   if (id < 0 || id > 9) 
     return -EINVAL;
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
 
+  unsigned frame = TOTAL_PAGES - SHARED_PAGES + id;
   page_table_entry *PT = get_PT(current());
 
-  if (addr == NULL) {
-    int i;
-    /* for (i = NUM_PAG_KERNEL; i < ) */
-
-    /* int frame = get_frame(PT, ) */
-
+  if (addr == NULL || !is_addr_free(PT, addr)) {
+    addr = (void*)get_free_addr(PT);
+    if (addr == NULL) 
+      return -ENOMEM;
   }
 
-  unsigned page = (unsigned long)addr / PAGE_SIZE;
-
-  unsigned frame = TOTAL_PAGES - SHARED_PAGES + id;
-
-  set_ss_pag(PT, page, frame);
+  set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame);
+  return (void*)addr;
 }

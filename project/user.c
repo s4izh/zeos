@@ -1,5 +1,7 @@
 #include <libc.h>
 
+#define NULL 0
+
 char buff[24];
 
 int pid;
@@ -16,6 +18,7 @@ int __attribute__ ((__section__(".text.main")))
   int pagefault_test = 0;
   int setcolor_test = 1; // milestone 3
   int gotoxy_test = 1; // milestone 3
+  int shmat_test = 1; // milestone 1 y 2
   int read_test = 1; // milestone 1 y 2
 
   // pagefault_test -------------
@@ -54,6 +57,48 @@ int __attribute__ ((__section__(".text.main")))
     gotoxy(0, 0);
     char *buff = "hola 0,0";
     write(1, buff, strlen(buff));
+  }
+
+  // shmat_test -----------------
+
+  if (shmat_test) {
+    void *shared_mem;
+
+    // Test invalid id
+    shared_mem = shmat(-1, NULL);
+    if (shared_mem == -1) {
+      char* buff = "\ninvalid id test passed, perror: ";
+      write(1, buff, strlen(buff));
+      perror();
+    } else {
+      char* buff = "\ninvalid id test failed, perror: ";
+      write(1, buff, strlen(buff));
+      perror();
+    }
+
+    // Test NULL addr
+    shared_mem = shmat(1, NULL);
+    if (shared_mem == -1) {
+      char* buff = "\nNULL addr test failed\n";
+      write(1, buff, strlen(buff));
+      perror();
+    } else {
+      // Test write in NULL addr
+      int* data = (int*)shared_mem;
+      *data = 42;
+      if (*data == 42) {
+        char* buff = "\nNULL addr test passed\n";
+        write(1, buff, strlen(buff));
+      }
+      shared_mem = shmat(1, 342>>12);
+      int* data2 = (int*)shared_mem;
+      if (*data == *data2) {
+        char* buff = "both pages mapped to the same frame passed\n";
+        write(1, buff, strlen(buff));
+      }
+    }
+
+    // Test 
   }
 
   // read_test ------------------

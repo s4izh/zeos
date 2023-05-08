@@ -40,5 +40,6 @@ ENTRY (sys_call_table)
 	.long sys_get_stats	    //35
 	.long sys_gotoxy    	//36
 	.long sys_set_color    	//37
+	.long sys_shmat    	    //38
 .globl MAX_SYSCALL
 MAX_SYSCALL = (. - sys_call_table)/4

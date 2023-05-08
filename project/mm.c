@@ -272,3 +272,28 @@ void del_ss_pag(page_table_entry *PT, unsigned logical_page)
 unsigned int get_frame (page_table_entry *PT, unsigned int logical_page){
      return PT[logical_page].bits.pbase_addr; 
 }
+
+
+// returns if a given address is free in a page table entry
+int is_addr_free(page_table_entry *PT, void* addr)
+{
+  return get_frame(PT, (unsigned long)addr / PAGE_SIZE) == 0;
+}
+
+// returns a free page aligned address
+void* get_free_addr(page_table_entry *PT)
+{
+  unsigned free_page = -1;
+
+  for(int i = NUM_PAG_KERNEL + NUM_PAG_DATA + NUM_PAG_CODE; i < TOTAL_PAGES; i++) {
+    if (get_frame(PT, i) == 0) {
+      free_page = i;
+      break;
+    }
+  }
+
+  if (free_page == -1)
+    return NULL;
+
+  return free_page * PAGE_SIZE;
+}
