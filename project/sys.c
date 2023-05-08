@@ -273,3 +273,9 @@ void* sys_shmat(int id, void *addr)
   set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame);
   return (void*)addr;
 }
+
+int sys_shmdt(void *addr)
+{
+  if ((unsigned long)addr % PAGE_SIZE != 0)
+    return -EINVAL;
+}
