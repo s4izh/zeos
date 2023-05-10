@@ -270,7 +270,7 @@ void* sys_shmat(int id, void *addr)
       return -ENOMEM;
   }
 
-  set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame);
+  set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame); 
   return (void*)addr;
 }
 
@@ -278,4 +278,11 @@ int sys_shmdt(void *addr)
 {
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
+  if (addr == NULL) 
+    return -EINVAL;
+  if (is_addr_free(get_PT(current()), addr))
+    return 0; //Si la página ya esta libre?
+  
+  del_ss_pag(get_PT(current()), (unsigned long)addr / PAGE_SIZE);
+  return 0;
 }
