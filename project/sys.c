@@ -271,6 +271,7 @@ void* sys_shmat(int id, void *addr)
   }
 
   set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame); 
+  current()->shared_pages[id] = (unsigned long)addr / PAGE_SIZE;
   return (void*)addr;
 }
 
@@ -282,6 +283,17 @@ int sys_shmdt(void *addr)
     return -EINVAL;
   if (is_addr_free(get_PT(current()), addr))
     return 0; //Si la página ya esta libre?
+ 
+  int is_shared = 0;
+  for (int i = 0; i < SHARED_PAGES; i++) {
+    if (current()->shared_pages[i] == (unsigned long)addr / PAGE_SIZE) {
+      current()->shared_pages[i] = -1;
+      is_shared = 1;
+      break;
+    }
+  }
+  if (!is_shared) 
+    return -EINVAL;
   
   del_ss_pag(get_PT(current()), (unsigned long)addr / PAGE_SIZE);
   return 0;
