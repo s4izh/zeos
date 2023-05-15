@@ -10,6 +10,9 @@
 
 Byte phys_mem[TOTAL_PAGES];
 
+int mapped_shared_pages_count[SHARED_PAGES];
+int marked_to_reset[SHARED_PAGES];
+
 /* SEGMENTATION */
 /* Memory segements description table */
 Descriptor  *gdt = (Descriptor *) GDT_START;

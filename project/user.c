@@ -97,6 +97,14 @@ int __attribute__ ((__section__(".text.main")))
         write(1, buff, strlen(buff));
       }
     }
+    /* int res = shmdt(shared_mem); */
+    /* if (res == 0) { */
+    /*   int *i = (int*)shared_mem; */
+    /*   ++*i; */
+    /*   char test[10]; */
+    /*   itoa(*i, test); */
+    /*   write(1, test, strlen(test)); */
+    /* } */
 
     // Test 
   }

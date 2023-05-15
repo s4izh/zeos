@@ -270,8 +270,8 @@ void* sys_shmat(int id, void *addr)
       return -ENOMEM;
   }
 
+  ++mapped_shared_pages_count[id];
   set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame); 
-  current()->shared_pages[id] = (unsigned long)addr / PAGE_SIZE;
   return (void*)addr;
 }
 
@@ -279,22 +279,39 @@ int sys_shmdt(void *addr)
 {
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
+
   if (addr == NULL) 
     return -EINVAL;
-  if (is_addr_free(get_PT(current()), addr))
+
+  unsigned page = (unsigned long)addr >> 12;
+  page_table_entry *current_PT = get_PT(current());
+  if (is_addr_free(current_PT, addr))
     return 0; //Si la página ya esta libre?
- 
-  int is_shared = 0;
-  for (int i = 0; i < SHARED_PAGES; i++) {
-    if (current()->shared_pages[i] == (unsigned long)addr / PAGE_SIZE) {
-      current()->shared_pages[i] = -1;
-      is_shared = 1;
-      break;
-    }
-  }
-  if (!is_shared) 
+
+  if (get_frame(current_PT, page) < TOTAL_PAGES - SHARED_PAGES)
     return -EINVAL;
-  
-  del_ss_pag(get_PT(current()), (unsigned long)addr / PAGE_SIZE);
+
+  int id = get_frame(current_PT, page) - TOTAL_PAGES + SHARED_PAGES;
+
+  --mapped_shared_pages_count[id];
+
+  if (mapped_shared_pages_count[id] == 0 && marked_to_reset[id])
+  {
+    memset((void*)addr, 0, PAGE_SIZE);
+    marked_to_reset[id] = 0;
+  }
+
+  del_ss_pag(current_PT, page);
+
   return 0;
+}
+
+// marks the shared page id to be cleaned (all 0)
+// after last process unmaps the page
+int sys_shmrm(int id)
+{
+  if (id < 0 || id > 9) 
+    return -EINVAL;
+
+  marked_to_reset[id] = 1;
 }
