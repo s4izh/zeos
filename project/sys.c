@@ -295,7 +295,7 @@ int sys_shmdt(void *addr)
 
   --mapped_shared_pages_count[id];
 
-  if (mapped_shared_pages_count[id] == 0 && marked_to_reset[id])
+  if (marked_to_reset[id] && mapped_shared_pages_count[id] == 0)
   {
     memset((void*)addr, 0, PAGE_SIZE);
     marked_to_reset[id] = 0;
@@ -314,4 +314,5 @@ int sys_shmrm(int id)
     return -EINVAL;
 
   marked_to_reset[id] = 1;
+  return 0;
 }

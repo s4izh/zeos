@@ -38,4 +38,6 @@ void* shmat(int id, void* addr);
 
 int shmdt(void* addr);
 
+int shmrm(int id);
+
 #endif  /* __LIBC_H__ */

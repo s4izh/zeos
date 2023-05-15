@@ -97,6 +97,38 @@ int __attribute__ ((__section__(".text.main")))
         write(1, buff, strlen(buff));
       }
     }
+
+    shared_mem = shmat(3, NULL);
+    int* data = (int*)shared_mem;
+    *data = 42;
+
+    void* shared_mem2 = shmat(3, NULL);
+
+    if (shmdt(shared_mem) < 0) {
+      write(1, "error shmdt\n", 5);
+    }
+
+    shmrm(3);
+
+    shmdt(shared_mem);
+
+    int* data2 = (int*)shared_mem2;
+    if (42 == *data2) {
+      char* buff = "shmdt funciona\n";
+      write(1, buff, strlen(buff));
+    }
+
+    shmdt(shared_mem2);
+
+    shared_mem2 = shmat(3, shared_mem2);
+
+    int* data3 = (int*)shared_mem2;
+    if (0 == *data3) {
+      char* buff = "shmrm funciona\n";
+      write(1, buff, strlen(buff));
+    }
+
+
     /* int res = shmdt(shared_mem); */
     /* if (res == 0) { */
     /*   int *i = (int*)shared_mem; */
