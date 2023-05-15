@@ -2,9 +2,9 @@
 
 Milestones
 
-- [ ] 1. (1 point) Keyboard interrupt stores keys in a circular buffer.
-- [ ] 2. (1 point) Functional read feature.
-- [ ] 3. (1 point) Functional gotoxy and set_color features.
+- [x] 1. (1 point) Keyboard interrupt stores keys in a circular buffer.
+- [x] 2. (1 point) Functional read feature.
+- [x] 3. (1 point) Functional gotoxy and set_color features.
 - [ ] 4. (1 point) Functional shmat feature.
 - [ ] 5. (2 points) Functional shmdt and shmrm features.
 - [ ] 6. (1 point) Performance statistics.
