@@ -98,13 +98,13 @@ int __attribute__ ((__section__(".text.main")))
       }
     }
 
-    shared_mem = shmat(3, NULL);
-    int* data = (int*)shared_mem;
+    void* shared_mem2 = shmat(3, NULL);
+    int* data = (int*)shared_mem2;
     *data = 42;
 
-    void* shared_mem2 = shmat(3, NULL);
+    void* shared_mem3 = shmat(3, NULL);
 
-    if (shmdt(shared_mem) < 0) {
+    if (shmdt(shared_mem2) < 0) {
       char* buff = "error shmdt, perror: ";
       write(1, buff, strlen(buff));
       perror();
@@ -112,25 +112,34 @@ int __attribute__ ((__section__(".text.main")))
 
     shmrm(3);
 
-    shmdt(shared_mem);
+    shmdt(shared_mem2);
 
-    int* data2 = (int*)shared_mem2;
+    int* data2 = (int*)shared_mem3;
     if (42 == *data2) {
       char* buff = "\nshmdt funciona\n";
       write(1, buff, strlen(buff));
     }
 
-    shmdt(shared_mem2);
+    shmdt(shared_mem3);
 
-    shared_mem2 = shmat(3, shared_mem2);
+    shared_mem3 = shmat(3, shared_mem3);
 
-    int* data3 = (int*)shared_mem2;
+    int* data3 = (int*)shared_mem3;
     if (0 == *data3) {
       char* buff = "shmrm funciona\n";
       write(1, buff, strlen(buff));
     }
 
     int pid = fork();
+
+    if (pid < 0) exit();
+
+    int* data5 = (int*)shared_mem;
+
+    if (42 == *data5) {
+      char* buff = "shmat despues del fork funciona\n";
+      write(1, buff, strlen(buff));
+    }
 
     /* switch (pid) { */
     /* case -1: */

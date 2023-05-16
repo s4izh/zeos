@@ -231,10 +231,29 @@ void sys_exit()
     del_ss_pag(process_PT, PAG_LOG_INIT_DATA+i);
   }
 
-  /* for (i=NUM_PAG_DATA; i < PAGE_TABLE_ENTRIES; i++) */
-  /* { */
-  /*   del_ss_pag(process_PT, i); */
-  /* } */
+  unsigned pag;
+
+  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
+  {
+    int frame;
+    int id = -1;
+    for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
+    {
+      frame = get_frame(process_PT, pag);
+      if (shared_pages[i].frame == frame)
+        id = i;
+    }
+    if (id != -1) {
+      del_ss_pag(process_PT, pag);
+      shared_pages[id].references--;
+
+      if (shared_pages[id].marked_to_delete && shared_pages[id].references == 0)
+      {
+        memset((void*)addr, 0, PAGE_SIZE);
+        shared_pages[id].marked_to_delete = 0;
+      }
+    }
+  }
   
   /* Free task_struct */
   list_add_tail(&(current()->list), &freequeue);
