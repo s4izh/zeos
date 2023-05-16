@@ -10,8 +10,7 @@
 
 Byte phys_mem[TOTAL_PAGES];
 
-int mapped_shared_pages_count[SHARED_PAGES];
-int marked_to_reset[SHARED_PAGES];
+struct shared_page shared_pages[SHARED_PAGES];
 
 /* SEGMENTATION */
 /* Memory segements description table */
@@ -133,10 +132,21 @@ void set_pe_flag()
   write_cr0(cr0);
 }
 
+void init_shared_pages()
+{
+  for (int i = 0; i < SHARED_PAGES; ++i)
+  {
+    shared_pages[i].frame = alloc_frame();
+    shared_pages[i].marked_to_delete = 0;
+    shared_pages[i].references = 0;
+  }
+}
+
 /* Initializes paging for the system address space */
 void init_mm()
 {
   init_table_pages();
+  init_shared_pages();
   init_frames();
   init_dir_pages();
   allocate_DIR(&task[0].task);
@@ -211,9 +221,9 @@ int init_frames( void )
     }
     
     /* shared memory, marcamos como usadas las 10 últimas */
-    for (i=TOTAL_PAGES-SHARED_PAGES; i<TOTAL_PAGES; i++) {
-        phys_mem[i] = USED_FRAME;
-    }
+    /* for (i=TOTAL_PAGES-SHARED_PAGES; i<TOTAL_PAGES; i++) { */
+    /*     phys_mem[i] = USED_FRAME; */
+    /* } */
 
     return 0;
 }

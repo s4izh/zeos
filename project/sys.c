@@ -270,7 +270,8 @@ void* sys_shmat(int id, void *addr)
       return -ENOMEM;
   }
 
-  ++mapped_shared_pages_count[id];
+  ++shared_pages[id].references;
+
   set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame); 
   return (void*)addr;
 }
@@ -293,12 +294,12 @@ int sys_shmdt(void *addr)
 
   int id = get_frame(current_PT, page) - TOTAL_PAGES + SHARED_PAGES;
 
-  --mapped_shared_pages_count[id];
+  --shared_pages[id].references;
 
-  if (marked_to_reset[id] && mapped_shared_pages_count[id] == 0)
+  if (shared_pages[id].marked_to_delete && shared_pages[id].references == 0)
   {
     memset((void*)addr, 0, PAGE_SIZE);
-    marked_to_reset[id] = 0;
+    shared_pages[id].marked_to_delete = 0;
   }
 
   del_ss_pag(current_PT, page);
@@ -313,6 +314,6 @@ int sys_shmrm(int id)
   if (id < 0 || id > 9) 
     return -EINVAL;
 
-  marked_to_reset[id] = 1;
+  shared_pages[id].marked_to_delete = 1;
   return 0;
 }

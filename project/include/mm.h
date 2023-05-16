@@ -15,8 +15,13 @@
 /* Bytemap to mark the free physical pages */
 extern Byte phys_mem[TOTAL_PAGES];
 
-extern int mapped_shared_pages_count[SHARED_PAGES];
-extern int marked_to_reset[SHARED_PAGES];
+struct shared_page {
+  int frame;
+  int marked_to_delete;
+  int references;
+};
+
+extern struct shared_page shared_pages[SHARED_PAGES];
 
 extern page_table_entry dir_pages[NR_TASKS][TOTAL_PAGES];
 
