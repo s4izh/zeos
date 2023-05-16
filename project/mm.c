@@ -146,7 +146,6 @@ void init_shared_pages()
 void init_mm()
 {
   init_table_pages();
-  init_shared_pages();
   init_frames();
   init_dir_pages();
   allocate_DIR(&task[0].task);
@@ -220,11 +219,6 @@ int init_frames( void )
         phys_mem[i] = USED_FRAME;
     }
     
-    /* shared memory, marcamos como usadas las 10 últimas */
-    /* for (i=TOTAL_PAGES-SHARED_PAGES; i<TOTAL_PAGES; i++) { */
-    /*     phys_mem[i] = USED_FRAME; */
-    /* } */
-
     return 0;
 }
 

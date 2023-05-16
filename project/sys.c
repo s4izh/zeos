@@ -245,11 +245,11 @@ void sys_exit()
     }
     if (id != -1) {
       del_ss_pag(process_PT, pag);
-      shared_pages[id].references--;
+      --shared_pages[id].references;
 
       if (shared_pages[id].marked_to_delete && shared_pages[id].references == 0)
       {
-        memset((void*)addr, 0, PAGE_SIZE);
+        memset((void*)(pag<<12), 0, PAGE_SIZE);
         shared_pages[id].marked_to_delete = 0;
       }
     }
