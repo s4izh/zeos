@@ -130,6 +130,27 @@ int __attribute__ ((__section__(".text.main")))
       write(1, buff, strlen(buff));
     }
 
+    int pid = fork();
+
+    switch (pid) {
+    case -1:
+      char* buff = "fork failed\n";
+      write(1, buff, strlen(buff));
+      break;
+    case 0:
+      shared_mem = shmat(3, NULL);
+      int* data5 = (int*)shared_mem;
+      *data5 = 42;
+      shmdt(shared_mem);
+      break;
+    default:
+      shared_mem = shmat(3, 320);
+      int* data6 = (int*)shared_mem;
+      *data6 = 42;
+      shmdt(shared_mem);
+      break;
+    }
+
 
     /* int res = shmdt(shared_mem); */
     /* if (res == 0) { */

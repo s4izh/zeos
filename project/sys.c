@@ -112,14 +112,45 @@ int sys_fork(void)
   {
     set_ss_pag(process_PT, PAG_LOG_INIT_CODE+pag, get_frame(parent_PT, PAG_LOG_INIT_CODE+pag));
   }
+
   /* Copy parent's DATA to child. We will use TOTAL_PAGES-1 as a temp logical page to map to */
-  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag++)
+  /* for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag++) */
+  /* { */
+  /*   /1* Map one child page to parent's address space. *1/ */
+  /*   set_ss_pag(parent_PT, pag+NUM_PAG_DATA, get_frame(process_PT, pag)); */
+  /*   copy_data((void*)(pag<<12), (void*)((pag+NUM_PAG_DATA)<<12), PAGE_SIZE); */
+  /*   del_ss_pag(parent_PT, pag+NUM_PAG_DATA); */
+  /* } */
+
+  pag = NUM_PAG_KERNEL+NUM_PAG_CODE;
+  while (pag<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA)
   {
+    if (!is_addr_free(parent_PT, (void*)(pag<<12))) continue;
     /* Map one child page to parent's address space. */
     set_ss_pag(parent_PT, pag+NUM_PAG_DATA, get_frame(process_PT, pag));
     copy_data((void*)(pag<<12), (void*)((pag+NUM_PAG_DATA)<<12), PAGE_SIZE);
     del_ss_pag(parent_PT, pag+NUM_PAG_DATA);
+    ++pag;
   }
+  
+
+  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
+  {
+    int frame;
+    int id = -1;
+    for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
+    {
+      frame = get_frame(parent_PT, pag);
+      if (shared_pages[i].frame == frame)
+        id = i;
+    }
+    if (id != -1) {
+      set_ss_pag(process_PT, pag, frame);
+      shared_pages[id].references++;
+    }
+  }
+
+
   /* Deny access to the child's memory space */
   set_cr3(get_DIR(current()));
 
@@ -291,6 +322,10 @@ int sys_shmdt(void *addr)
     return -EINVAL;
 
   unsigned page = (unsigned long)addr >> 12;
+
+  if (page < NUM_PAG_KERNEL + NUM_PAG_CODE + NUM_PAG_DATA)
+    return -EINVAL;
+
   page_table_entry *current_PT = get_PT(current());
   if (is_addr_free(current_PT, addr))
     return 0; // la página ya esta libre
