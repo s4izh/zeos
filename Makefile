@@ -7,4 +7,6 @@ test_entrega:
 	cp zeos.tar.gz test
 	cd test && tar -xvzf zeos.tar.gz
 	cd test/project && make emul
+
+rm:
 	rm -rf test
