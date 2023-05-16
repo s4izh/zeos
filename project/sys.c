@@ -116,17 +116,13 @@ int sys_fork(void)
   /* Copy parent's DATA to child. We will use TOTAL_PAGES-1 as a temp logical page to map to */
   /* for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag++) */
   /* { */
-  /*   if (!is_addr_free(parent_PT, (void*)(pag<<12))) */
-  /*     continue; */
-  /*   /1* Map one child page to parent's address space. *1/ */
-  /*   set_ss_pag(parent_PT, pag+NUM_PAG_DATA, get_frame(process_PT, child_pag)); */
+  /*   set_ss_pag(parent_PT, pag+NUM_PAG_DATA, get_frame(process_PT, pag)); */
   /*   copy_data((void*)(pag<<12), (void*)((pag+NUM_PAG_DATA)<<12), PAGE_SIZE); */
   /*   del_ss_pag(parent_PT, pag+NUM_PAG_DATA); */
-  /*   ++child_pag; */
   /* } */
 
   pag = NUM_PAG_KERNEL+NUM_PAG_CODE;
-  unsigned pag_to_copy = NUM_PAG_KERNEL+NUM_PAG_CODE;
+  unsigned pag_to_copy = pag;
 
   while (pag_to_copy<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA)
   {
@@ -138,7 +134,6 @@ int sys_fork(void)
     }
     ++pag;
   }
-  
 
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
   {
@@ -155,7 +150,6 @@ int sys_fork(void)
       shared_pages[id].references++;
     }
   }
-
 
   /* Deny access to the child's memory space */
   set_cr3(get_DIR(current()));
