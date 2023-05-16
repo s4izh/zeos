@@ -199,6 +199,11 @@ void sys_exit()
     free_frame(get_frame(process_PT, PAG_LOG_INIT_DATA+i));
     del_ss_pag(process_PT, PAG_LOG_INIT_DATA+i);
   }
+
+  /* for (i=NUM_PAG_DATA; i < PAGE_TABLE_ENTRIES; i++) */
+  /* { */
+  /*   del_ss_pag(process_PT, i); */
+  /* } */
   
   /* Free task_struct */
   list_add_tail(&(current()->list), &freequeue);
@@ -260,8 +265,9 @@ void* sys_shmat(int id, void *addr)
     return -EINVAL;
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
+  /* if (access_ok(VERIFY_WRITE, addr, PAGE_SIZE) == 0) */
+  /*   return -EFAULT; */
 
-  unsigned frame = TOTAL_PAGES - SHARED_PAGES + id;
   page_table_entry *PT = get_PT(current());
 
   if (addr == NULL || !is_addr_free(PT, addr)) {
@@ -272,7 +278,7 @@ void* sys_shmat(int id, void *addr)
 
   ++shared_pages[id].references;
 
-  set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, frame); 
+  set_ss_pag(PT, (unsigned long)addr / PAGE_SIZE, shared_pages[id].frame); 
   return (void*)addr;
 }
 
@@ -287,12 +293,19 @@ int sys_shmdt(void *addr)
   unsigned page = (unsigned long)addr >> 12;
   page_table_entry *current_PT = get_PT(current());
   if (is_addr_free(current_PT, addr))
-    return 0; //Si la página ya esta libre?
+    return 0; // la página ya esta libre
 
-  if (get_frame(current_PT, page) < TOTAL_PAGES - SHARED_PAGES)
+  int id = -1;
+  int frame = get_frame(current_PT, page);
+
+  for (int i = 0; i < 10 && id == -1; ++i)
+  {
+    if (shared_pages[i].frame == frame)
+      id = i;
+  }
+
+  if (id == -1)
     return -EINVAL;
-
-  int id = get_frame(current_PT, page) - TOTAL_PAGES + SHARED_PAGES;
 
   --shared_pages[id].references;
 

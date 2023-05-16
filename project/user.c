@@ -105,7 +105,9 @@ int __attribute__ ((__section__(".text.main")))
     void* shared_mem2 = shmat(3, NULL);
 
     if (shmdt(shared_mem) < 0) {
-      write(1, "error shmdt\n", 5);
+      char* buff = "error shmdt, perror: ";
+      write(1, buff, strlen(buff));
+      perror();
     }
 
     shmrm(3);
@@ -114,7 +116,7 @@ int __attribute__ ((__section__(".text.main")))
 
     int* data2 = (int*)shared_mem2;
     if (42 == *data2) {
-      char* buff = "shmdt funciona\n";
+      char* buff = "\nshmdt funciona\n";
       write(1, buff, strlen(buff));
     }
 

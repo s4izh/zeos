@@ -298,7 +298,7 @@ void* get_free_addr(page_table_entry *PT)
 {
   unsigned free_page = -1;
 
-  for(int i = NUM_PAG_KERNEL + NUM_PAG_DATA + NUM_PAG_CODE; i < TOTAL_PAGES; i++) {
+  for(int i = NUM_PAG_KERNEL + NUM_PAG_CODE + NUM_PAG_DATA; i < TOTAL_PAGES; i++) {
     if (get_frame(PT, i) == 0) {
       free_page = i;
       break;
