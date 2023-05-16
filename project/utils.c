@@ -91,7 +91,7 @@ int access_ok(int type, const void * addr, unsigned long size)
     return 0;
 
   page_table_entry *process_PT = get_PT(current());
-  int frame = get_frame(process_PT, (int)addr<<12);
+  int frame = get_frame(process_PT, addr_ini);
   for (int i = 0; i < SHARED_PAGES; i++) 
   {
     if (shared_pages[i].frame == frame)
