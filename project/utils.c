@@ -1,6 +1,8 @@
 #include <utils.h>
 #include <types.h>
 
+#include <mm.h>
+
 #include <mm_address.h>
 
 void copy_data(void *start, void *dest, int size)
@@ -76,12 +78,26 @@ int access_ok(int type, const void * addr, unsigned long size)
       /* Should suppose no support for automodifyable code */
       if ((addr_ini>=USER_FIRST_PAGE+NUM_PAG_CODE)&&
           (addr_fin<=USER_FIRST_PAGE+NUM_PAG_CODE+NUM_PAG_DATA))
-	  return 1;
+        return 1;
     default:
       if ((addr_ini>=USER_FIRST_PAGE)&&
-  	(addr_fin<=(USER_FIRST_PAGE+NUM_PAG_CODE+NUM_PAG_DATA)))
-          return 1;
+          (addr_fin<=(USER_FIRST_PAGE+NUM_PAG_CODE+NUM_PAG_DATA)))
+        return 1;
   }
+
+  // solo se puede escribir en una página shared a la vez
+  // da igual si están mapeadas continuamente
+  if (addr_ini != addr_fin)
+    return 0;
+
+  page_table_entry *process_PT = get_PT(current());
+  int frame = get_frame(process_PT, (int)addr<<12);
+  for (int i = 0; i < SHARED_PAGES; i++) 
+  {
+    if (shared_pages[i].frame == frame)
+      return 1;
+  }
+
   return 0;
 }
 

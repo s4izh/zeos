@@ -3,8 +3,112 @@
 #define NULL 0
 
 char buff[24];
-
 int pid;
+
+void test_shmat()
+{
+  void* shared_mem = shmat(1, NULL);
+  void* shared_mem2 = shmat(1, 342<<12);
+
+  int* data = (int *)shared_mem;
+  *data = 10;
+
+  int* data2 = (int *)shared_mem2;
+
+  if (*data == *data2) {
+    char* buff = "\ntest_shmat(): passed\n";
+    write(1, buff, strlen(buff));
+  }
+  else {
+    char* buff = "\ntest_shmat(): failed\n";
+    write(1, buff, strlen(buff));
+  }
+  shmdt(shared_mem);
+  shmdt(shared_mem2);
+}
+
+void test_shmrm()
+{
+  void* shared_mem = shmat(2, NULL);
+  void* shared_mem2 = shmat(2, 342<<12);
+
+  int* data = (int *)shared_mem;
+  *data = 10;
+
+  shmrm(2);
+  shmdt(shared_mem);
+  shmdt(shared_mem2);
+  shared_mem2 = shmat(2, 340<<12);
+  
+  int* data2 = (int *)shared_mem2;
+
+  if (0 == *data2) {
+    char* buff = "test_shmrm(): passed\n";
+    write(1, buff, strlen(buff));
+  }
+  else {
+    char* buff = "test_shmrm(): failed\n";
+    write(1, buff, strlen(buff));
+  }
+  shmdt(shared_mem2);
+}
+
+void test_shmat_fork()
+{
+  void* shared_mem = shmat(3, NULL);
+  void* shared_mem2 = shmat(3, 342<<12);
+
+  int* data = (int *)shared_mem;
+  *data = 10;
+
+  int pid = fork();
+
+  if (pid == 0) {
+    int* data2 = (int *)shared_mem2;
+
+    if (*data == *data2) {
+      char* buff = "test_shmat_fork(): passed\n";
+      write(1, buff, strlen(buff));
+    }
+    else {
+      char* buff = "test_shmat_fork(): failed\n";
+      write(1, buff, strlen(buff));
+    }
+    exit();
+  }
+  shmdt(shared_mem);
+  shmdt(shared_mem2);
+}
+
+void test_shmrm_fork()
+{
+  void* shared_mem = shmat(4, NULL);
+  void* shared_mem2 = shmat(4, 342<<12);
+
+  int* data = (int *)shared_mem;
+  *data = 10;
+
+  int pid = fork();
+
+  shmrm(4);
+  shmdt(shared_mem);
+  shmdt(shared_mem2);
+  shared_mem2 = shmat(4, 342<<12);
+
+  int* data2 = (int *)shared_mem2;
+
+  if (pid == 0) {
+    if (0 == *data2) {
+      char* buff = "test_shmrm_fork(): passed\n";
+      write(1, buff, strlen(buff));
+    }
+    else {
+      char* buff = "test_shmrm_fork(): failed\n";
+      write(1, buff, strlen(buff));
+    }
+  }
+  shmdt(shared_mem2);
+}
 
 int __attribute__ ((__section__(".text.main")))
   main(void)
@@ -62,115 +166,10 @@ int __attribute__ ((__section__(".text.main")))
   // shmat_test -----------------
 
   if (shmat_test) {
-    void *shared_mem;
-
-    // Test invalid id
-    shared_mem = shmat(-1, NULL);
-    if (shared_mem == -1) {
-      char* buff = "\ninvalid id test passed, perror: ";
-      write(1, buff, strlen(buff));
-      perror();
-    } else {
-      char* buff = "\ninvalid id test failed, perror: ";
-      write(1, buff, strlen(buff));
-      perror();
-    }
-
-    // Test NULL addr
-    shared_mem = shmat(1, NULL);
-    if (shared_mem == -1) {
-      char* buff = "\nNULL addr test failed\n";
-      write(1, buff, strlen(buff));
-      perror();
-    } else {
-      // Test write in NULL addr
-      int* data = (int*)shared_mem;
-      *data = 42;
-      if (*data == 42) {
-        char* buff = "\nNULL addr test passed\n";
-        write(1, buff, strlen(buff));
-      }
-      shared_mem = shmat(1, 342>>12);
-      int* data2 = (int*)shared_mem;
-      if (*data == *data2) {
-        char* buff = "both pages mapped to the same frame passed\n";
-        write(1, buff, strlen(buff));
-      }
-    }
-
-    void* shared_mem2 = shmat(3, NULL);
-    int* data = (int*)shared_mem2;
-    *data = 42;
-
-    void* shared_mem3 = shmat(3, NULL);
-
-    if (shmdt(shared_mem2) < 0) {
-      char* buff = "error shmdt, perror: ";
-      write(1, buff, strlen(buff));
-      perror();
-    }
-
-    shmrm(3);
-
-    shmdt(shared_mem2);
-
-    int* data2 = (int*)shared_mem3;
-    if (42 == *data2) {
-      char* buff = "\nshmdt funciona\n";
-      write(1, buff, strlen(buff));
-    }
-
-    shmdt(shared_mem3);
-
-    shared_mem3 = shmat(3, shared_mem3);
-
-    int* data3 = (int*)shared_mem3;
-    if (0 == *data3) {
-      char* buff = "shmrm funciona\n";
-      write(1, buff, strlen(buff));
-    }
-
-    int pid = fork();
-
-    if (pid < 0) exit();
-
-    int* data5 = (int*)shared_mem;
-
-    if (42 == *data5) {
-      char* buff = "shmat despues del fork funciona\n";
-      write(1, buff, strlen(buff));
-    }
-
-    /* switch (pid) { */
-    /* case -1: */
-    /*   char* buff = "fork failed\n"; */
-    /*   write(1, buff, strlen(buff)); */
-    /*   break; */
-    /* case 0: */
-    /*   shared_mem = shmat(3, NULL); */
-    /*   int* data5 = (int*)shared_mem; */
-    /*   *data5 = 42; */
-    /*   shmdt(shared_mem); */
-    /*   break; */
-    /* default: */
-    /*   shared_mem = shmat(3, 320); */
-    /*   int* data6 = (int*)shared_mem; */
-    /*   *data6 = 42; */
-    /*   shmdt(shared_mem); */
-    /*   break; */
-    /* } */
-
-
-    /* int res = shmdt(shared_mem); */
-    /* if (res == 0) { */
-    /*   int *i = (int*)shared_mem; */
-    /*   ++*i; */
-    /*   char test[10]; */
-    /*   itoa(*i, test); */
-    /*   write(1, test, strlen(test)); */
-    /* } */
-
-    // Test 
+    test_shmat();
+    test_shmrm();
+    test_shmat_fork();
+    test_shmrm_fork();
   }
 
   // read_test ------------------

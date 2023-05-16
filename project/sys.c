@@ -137,11 +137,10 @@ int sys_fork(void)
 
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
   {
-    int frame;
+    int frame = get_frame(parent_PT, pag);
     int id = -1;
     for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
     {
-      frame = get_frame(parent_PT, pag);
       if (shared_pages[i].frame == frame)
         id = i;
     }
@@ -235,11 +234,10 @@ void sys_exit()
 
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
   {
-    int frame;
+    int frame = get_frame(process_PT, pag);
     int id = -1;
     for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
     {
-      frame = get_frame(process_PT, pag);
       if (shared_pages[i].frame == frame)
         id = i;
     }
@@ -315,8 +313,6 @@ void* sys_shmat(int id, void *addr)
     return -EINVAL;
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
-  /* if (access_ok(VERIFY_WRITE, addr, PAGE_SIZE) == 0) */
-  /*   return -EFAULT; */
 
   page_table_entry *PT = get_PT(current());
 
