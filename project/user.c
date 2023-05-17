@@ -134,6 +134,21 @@ void test_shmrm_fork()
       write(1, buff, strlen(buff));
     }
   }
+  shmdt(shared_mem2);
+}
+
+void test_access_ok()
+{
+  void* shared_mem = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
+  void* shared_mem2 = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA + 1)<<12);
+  char* c = (char*) shared_mem2;
+  for (int i = 0; i < 1500; ++i) {
+    c[i] = 1;
+  }
+  /* shmdt(shared_mem); */
+  /* void* shared_mem3 = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA + 5)<<12); */
+  /* void* shared_mem4 = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA + 6)<<12); */
+
 }
 
 int __attribute__ ((__section__(".text.main")))
@@ -196,6 +211,7 @@ int __attribute__ ((__section__(".text.main")))
     test_shmrm();
     test_shmat_fork();
     test_shmrm_fork();
+    test_access_ok();
   }
 
   // read_test ------------------

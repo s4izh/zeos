@@ -85,20 +85,23 @@ int access_ok(int type, const void * addr, unsigned long size)
         return 1;
   }
 
-  // solo se puede escribir en una página shared a la vez
-  // da igual si están mapeadas continuamente
-  if (addr_ini != addr_fin)
-    return 0;
-
   page_table_entry *process_PT = get_PT(current());
-  int frame = get_frame(process_PT, addr_ini);
-  for (int i = 0; i < SHARED_PAGES; i++) 
+
+  int pages_to_look = addr_ini - addr_fin + 1;
+
+  int ok = 0;
+
+  for (int i = 0; i < pages_to_look; i++)
   {
-    if (shared_pages[i].frame == frame)
-      return 1;
+    int frame = get_frame(process_PT, addr_ini + i);
+    for (int j = 0; j < SHARED_PAGES && !ok; j++) 
+      if (shared_pages[i].frame == frame) 
+        ok = 1;
+    if (!ok) return 0;
+    ok = 0;
   }
 
-  return 0;
+  return 1;
 }
 
 
