@@ -242,7 +242,6 @@ void sys_exit()
         id = i;
     }
     if (id != -1) {
-      del_ss_pag(process_PT, pag);
       --shared_pages[id].references;
 
       if (shared_pages[id].marked_to_delete && shared_pages[id].references == 0)
@@ -250,6 +249,7 @@ void sys_exit()
         memset((void*)(pag<<12), 0, PAGE_SIZE);
         shared_pages[id].marked_to_delete = 0;
       }
+      del_ss_pag(process_PT, pag);
     }
   }
   

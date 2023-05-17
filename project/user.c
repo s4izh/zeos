@@ -90,6 +90,8 @@ void test_shmrm_fork()
 
   int pid = fork();
 
+  if (pid > 0) exit();
+
   shmrm(4);
   shmdt(shared_mem);
   shmdt(shared_mem2);
