@@ -367,6 +367,8 @@ int sys_shmdt(void *addr)
 
   del_ss_pag(current_PT, page);
 
+  set_cr3(get_DIR(current()));
+
   return 0;
 }
 
