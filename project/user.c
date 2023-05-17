@@ -107,7 +107,6 @@ void test_shmrm_fork()
       write(1, buff, strlen(buff));
     }
   }
-  shmdt(shared_mem2);
 }
 
 int __attribute__ ((__section__(".text.main")))
