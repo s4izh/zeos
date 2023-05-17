@@ -343,7 +343,7 @@ int sys_shmdt(void *addr)
 
   page_table_entry *current_PT = get_PT(current());
   if (is_addr_free(current_PT, addr))
-    return 0; // la página ya esta libre
+    return -EINVAL; // la página ya esta libre
 
   int id = -1;
   int frame = get_frame(current_PT, page);
