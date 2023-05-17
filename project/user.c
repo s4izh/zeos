@@ -1,29 +1,29 @@
 #include <libc.h>
 
-/* #define ENTRY_DIR_PAGES       0 */
+#define ENTRY_DIR_PAGES       0
 
-/* #define TOTAL_PAGES 1024 */
-/* #define NUM_PAG_KERNEL 256 */
-/* #define PAG_LOG_INIT_CODE (L_USER_START>>12) */
-/* #define FRAME_INIT_CODE (PH_USER_START>>12) */
-/* #define NUM_PAG_CODE 8 */
-/* #define PAG_LOG_INIT_DATA (PAG_LOG_INIT_CODE+NUM_PAG_CODE) */
-/* #define NUM_PAG_DATA 20 */
-/* #define PAGE_SIZE 0x1000 */
+#define TOTAL_PAGES 1024
+#define NUM_PAG_KERNEL 256
+#define PAG_LOG_INIT_CODE (L_USER_START>>12)
+#define FRAME_INIT_CODE (PH_USER_START>>12)
+#define NUM_PAG_CODE 8
+#define PAG_LOG_INIT_DATA (PAG_LOG_INIT_CODE+NUM_PAG_CODE)
+#define NUM_PAG_DATA 20
+#define PAGE_SIZE 0x1000
 
-/* #define SHARED_PAGES 10 */
+#define SHARED_PAGES 10
 
 /* Memory distribution */
 /***********************/
 
-/* #define KERNEL_START     0x10000 */
-/* #define L_USER_START        0x100000 */
-/* #define PH_USER_START       0x100000 */
-/* #define USER_ESP	L_USER_START+(NUM_PAG_CODE+NUM_PAG_DATA)*0x1000-16 */
+#define KERNEL_START     0x10000
+#define L_USER_START        0x100000
+#define PH_USER_START       0x100000
+#define USER_ESP	L_USER_START+(NUM_PAG_CODE+NUM_PAG_DATA)*0x1000-16
 
-/* #define USER_FIRST_PAGE	(L_USER_START>>12) */
+#define USER_FIRST_PAGE	(L_USER_START>>12)
 
-/* #define PH_PAGE(x) (x>>12) */
+#define PH_PAGE(x) (x>>12)
 
 #define NULL 0
 
@@ -33,7 +33,7 @@ int pid;
 void test_shmat()
 {
   void* shared_mem = shmat(1, NULL);
-  void* shared_mem2 = shmat(1, 342<<12);
+  void* shared_mem2 = shmat(1, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
 
   int* data = (int *)shared_mem;
   *data = 10;
@@ -55,7 +55,7 @@ void test_shmat()
 void test_shmrm()
 {
   void* shared_mem = shmat(2, NULL);
-  void* shared_mem2 = shmat(2, 342<<12);
+  void* shared_mem2 = shmat(2, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
 
   int* data = (int *)shared_mem;
   *data = 10;
@@ -63,7 +63,7 @@ void test_shmrm()
   shmrm(2);
   shmdt(shared_mem);
   shmdt(shared_mem2);
-  shared_mem2 = shmat(2, 340<<12);
+  shared_mem2 = shmat(2, (PAG_LOG_INIT_DATA + NUM_PAG_DATA + 4)<<12);
   
   int* data2 = (int *)shared_mem2;
 
@@ -81,7 +81,7 @@ void test_shmrm()
 void test_shmat_fork()
 {
   void* shared_mem = shmat(3, NULL);
-  void* shared_mem2 = shmat(3, 342<<12);
+  void* shared_mem2 = shmat(3, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
 
   int* data = (int *)shared_mem;
   *data = 10;
@@ -108,7 +108,7 @@ void test_shmat_fork()
 void test_shmrm_fork()
 {
   void* shared_mem = shmat(4, NULL);
-  void* shared_mem2 = shmat(4, 342<<12);
+  void* shared_mem2 = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
 
   int* data = (int *)shared_mem;
   *data = 10;
@@ -120,7 +120,7 @@ void test_shmrm_fork()
   shmrm(4);
   shmdt(shared_mem);
   shmdt(shared_mem2);
-  shared_mem2 = shmat(4, 342<<12);
+  shared_mem2 = shmat(4, (PAG_LOG_INIT_DATA + NUM_PAG_DATA)<<12);
 
   int* data2 = (int *)shared_mem2;
 

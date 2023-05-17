@@ -129,27 +129,21 @@ int sys_fork(void)
   /*   } */
   /* } */
 
-  /* int frames[NUM_PAG_DATA]; */
-  /* int t = 0; */
+  int frames[NUM_PAG_DATA];
+  i = 0;
 
+  /* guardamos las páginas shared del padre en el vector frames[] y las desmapeamos */
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+(2*NUM_PAG_DATA); pag++)
   {
     int frame = get_frame(parent_PT, pag);
-    int found = 0;
-    for (int i = 0; i < SHARED_PAGES && !found; i++) 
-    {
-      if (shared_pages[i].frame == frame) {
-        frames[t] = frame;
-        found = 1;
-      }
+    if (frame != 0) {
+      frames[i] = frame;
+      del_ss_pag(parent_PT, pag);
     }
-    if (!found)
-      frames[t] = -1;
-    t++;
+    i++;
   }
 
-  for (int i=0; i < NUM_PAG_DATA; ++i)
-    free_frame()
+  set_cr3(get_DIR(current()));
 
   /* Copy parent's DATA to child. We will use TOTAL_PAGES-1 as a temp logical page to map to */
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag++)
@@ -159,69 +153,29 @@ int sys_fork(void)
     del_ss_pag(parent_PT, pag+NUM_PAG_DATA);
   }
 
-
-  /* for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++) */
-  /* { */
-  /*   int frame = get_frame(parent_PT, pag); */
-  /*   int id = -1; */
-  /*   for (int i = 0; i < SHARED_PAGES && id == -1; i++) */ 
-  /*   { */
-  /*     if (shared_pages[i].frame == frame) */
-  /*       id = i; */
-  /*   } */
-  /*   if (id != -1) { */
-  /*     set_ss_pag(process_PT, pag, frame); */
-  /*     shared_pages[id].references++; */
-  /*   } */
-  /* } */
-
-  int k = 0;
-  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+(2*NUM_PAG_DATA); pag++)
+  /* rempear las páginas shared que se han borrado antes */
+  for (i = 0; i < NUM_PAG_DATA; i++)
   {
-    if (frames[k] != -1) {
-      set_ss_pag(parent_PT, pag, frames[k]);
-      int found = 0;
-      for (int i = 0; i < SHARED_PAGES && !found; i++) 
+    set_ss_pag(parent_PT, NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA+i, frames[i]);
+  }
+
+
+  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
+  {
+    int frame = get_frame(parent_PT, pag);
+    if (frame != 0) {
+      int id = -1;
+      for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
       {
-        if (shared_pages[i].frame == frames[k]) {
-          shared_pages[i].references++;
-          found = 1;
-        }
+        if (shared_pages[i].frame == frame)
+          id = i;
+      }
+      if (id != -1) {
+        set_ss_pag(process_PT, pag, frame);
+        shared_pages[id].references++;
       }
     }
-    k++;
   }
-
-  /* remapeamos las 20 primeras páginas del padre iterando sobre */
-  /* las 20 primeras páginas del hijo */
-  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+(2*NUM_PAG_DATA); pag<TOTAL_PAGES; pag++)
-  {
-    int frame = get_frame(process_PT, pag);
-    int id = -1;
-    for (int i = 0; i < SHARED_PAGES && id == -1; i++) 
-    {
-      if (shared_pages[i].frame == frame)
-        id = i;
-    }
-    if (id != -1) {
-      set_ss_pag(parent_PT, pag, frame);
-    }
-  }
-
-  /* pag = NUM_PAG_KERNEL+NUM_PAG_CODE; */
-  /* unsigned pag_to_copy = pag; */
-
-  /* while (pag_to_copy<NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA) */
-  /* { */
-  /*   if (is_addr_free(parent_PT, (void*)(pag+NUM_PAG_DATA<<12))) { */
-  /*     set_ss_pag(parent_PT, pag+NUM_PAG_DATA, get_frame(process_PT, pag_to_copy)); */
-  /*     copy_data((void*)(pag_to_copy<<12), (void*)((pag+NUM_PAG_DATA)<<12), PAGE_SIZE); */
-  /*     del_ss_pag(parent_PT, pag+NUM_PAG_DATA); */
-  /*     ++pag_to_copy; */
-  /*   } */
-  /*   ++pag; */
-  /* } */
-
 
   /* Deny access to the child's memory space */
   set_cr3(get_DIR(current()));
@@ -386,6 +340,12 @@ void* sys_shmat(int id, void *addr)
     return -EINVAL;
   if ((unsigned long)addr % PAGE_SIZE != 0)
     return -EINVAL;
+
+  if (addr != NULL) {
+    unsigned page = (unsigned long)addr >> 12;
+    if (page >= TOTAL_PAGES)
+      return -EFAULT;
+  }
 
   page_table_entry *PT = get_PT(current());
 
