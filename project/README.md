@@ -108,7 +108,43 @@ detect if the fault is due to a write access to a COW page, and then do the
 missing reservation, mapping and copying from the original fork.
 
 
+* Clase:
 
+FPS:
 
+int frames = 0;
+gettime()
+1 segundo --> 18 ticks
+funcion q devuelva los fps
 
+```C
+float fps()
+{
+ return frames/(gettime()/18)
+}
+```
 
+// cuando vaya a dibujar un frame llamo a fps y le sumo un frame
+
+Como funciona COW:
+
+Cambiar bucle de copia de sys fork
+para que los datos se mappen (no copia) y
+marcarlos como READ ONLY
+
+Hay que modificar el vector de PHYS_MEM
+para que cada una de las posiciones indique
+
+- si la pag esta libre
+- #ref a la pag física
+
+cuando hagamos la copia aumentar el número de referencias
+
+cuando quiera escribir en esa zona se generará un PAGE FAULT
+
+en cr2 estará la @logica que ha causado page fault
+
+mirar que @ pertenezca a zona de datos + pila del proceso
+
+buscar entrada de la tabla de páginas libre y asignar una física 
+con alloc_frame, copiar la página, mapearla y restar al número de referencias
