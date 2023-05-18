@@ -113,22 +113,6 @@ int sys_fork(void)
     set_ss_pag(process_PT, PAG_LOG_INIT_CODE+pag, get_frame(parent_PT, PAG_LOG_INIT_CODE+pag));
   }
 
-  /* mapeamos al hijo todas las páginas shared */
-  /* for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++) */
-  /* { */
-  /*   int frame = get_frame(parent_PT, pag); */
-  /*   int id = -1; */
-  /*   for (int i = 0; i < SHARED_PAGES && id == -1; i++) */ 
-  /*   { */
-  /*     if (shared_pages[i].frame == frame) */
-  /*       id = i; */
-  /*   } */
-  /*   if (id != -1) { */
-  /*     set_ss_pag(process_PT, pag, frame); */
-  /*     shared_pages[id].references++; */
-  /*   } */
-  /* } */
-
   int frames[NUM_PAG_DATA];
   i = 0;
 
