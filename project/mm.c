@@ -266,7 +266,17 @@ void set_ss_pag(page_table_entry *PT, unsigned page,unsigned frame)
 	PT[page].bits.user=1;
 	PT[page].bits.rw=1;
 	PT[page].bits.present=1;
+}
 
+/* set_ss_pag_ro - Associates logical page 'page' with physical page 'frame' */
+/* with read only */
+void set_ss_pag_ro(page_table_entry *PT, unsigned page,unsigned frame)
+{
+	PT[page].entry=0;
+	PT[page].bits.pbase_addr=frame;
+	PT[page].bits.user=1;
+	PT[page].bits.rw=0;
+	PT[page].bits.present=1;
 }
 
 /* del_ss_pag - Removes mapping from logical page 'logical_page' */
