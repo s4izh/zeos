@@ -43,6 +43,8 @@ void setGdt();
 void setTSS();
 
 void set_ss_pag(page_table_entry *PT, unsigned page,unsigned frame);
+void set_ss_pag_ro(page_table_entry *PT, unsigned page,unsigned frame);
+
 void del_ss_pag(page_table_entry *PT, unsigned page);
 unsigned int get_frame(page_table_entry *PT, unsigned int page);
 

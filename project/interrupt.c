@@ -7,6 +7,8 @@
 #include <hardware.h>
 #include <io.h>
 
+#include <mm.h>
+
 #include <sched.h>
 
 #include <zeos_interrupt.h>
@@ -148,13 +150,40 @@ void int_to_hex(unsigned int num, char *hex_string) {
 }
 
 void page_fault_routine2(unsigned int error, unsigned int eip) {
-    char buff[8];
-    int_to_hex(eip, buff);
-    printk("Process generates a PAGE FAULT expection at EIP: 0x");
-    printk(buff);
-    /* itoa(error, buff); */
-    /* printk("\nError: "); */
-    /* printk(buff); */
-    while(1);
+  unsigned pag = eip >> 12;
+
+  if (pag >= PAG_LOG_INIT_DATA && pag < PAG_LOG_INIT_DATA + NUM_PAG_DATA) {
+    page_table_entry *process_PT = get_PT(current());
+    int frame = get_frame(process_PT, pag);
+
+    if (phys_mem[frame] == 1) {
+      set_ss_pag(process_PT, pag, frame);
+      return;
+    }
+
+    if (phys_mem[frame] > 1) {
+      int new_frame = alloc_frame();
+      if (new_frame != -1) {
+        void *addr = get_free_addr(process_PT);
+        set_ss_pag(process_PT, (unsigned)addr >> 12, new_frame);
+        copy_data((void*)(pag << 12), addr, PAGE_SIZE);
+
+        del_ss_pag(process_PT, pag);
+        del_ss_pag(process_PT, (unsigned)addr >> 12);
+
+        --phys_mem[frame];
+
+        set_ss_pag(process_PT, pag, new_frame);
+        set_cr3(get_DIR(current()));
+        return;
+      }
+    }
+  }
+
+  char buff[8];
+  int_to_hex(eip, buff);
+  printk("Process generates a PAGE FAULT expection at EIP: 0x");
+  printk(buff);
+  while(1);
 }
 
