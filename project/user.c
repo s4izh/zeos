@@ -29,6 +29,12 @@
 
 char buff[24];
 int pid;
+float frames = 0;
+
+float get_fps() {
+  float seconds = (float)gettime()/18.0f;
+  return frames/seconds;
+}
 
 void test_shmat()
 {
