@@ -97,7 +97,20 @@ ENTRY(keyboard_handler)
 
 // 14
 ENTRY(page_fault_handler2)
+    SAVE_ALL
+    movl %esp, %ebp
+    mov %cr2, %eax
+    pushl %eax
+    pushl 0x30(%ebp)
+    pushl 0x2C(%ebp)
     call page_fault_routine2
+    popl %ebx
+    popl %ebx
+    popl %eax
+    EOI
+    RESTORE_ALL
+    popl %eax
+    iret
 
 ENTRY(system_call_handler)
 	push $__USER_DS
