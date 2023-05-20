@@ -24,7 +24,7 @@ struct task_struct {
   enum state_t state;		/* State of the process */
   int total_quantum;		/* Total quantum of the process */
   struct stats p_stats;		/* Process stats */
-  int shared_pages_used[SHARED_PAGES];   /* Array of shared frames */
+  /* int shared_pages_used[SHARED_PAGES];   /1* Array of shared frames *1/ */
 };
 
 union task_union {

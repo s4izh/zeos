@@ -127,8 +127,9 @@ int sys_fork(void)
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+(2*NUM_PAG_DATA); pag++)
   {
     int frame = get_frame(parent_PT, pag);
+    frames[i] = frame;
     if (frame != 0) {
-      frames[i] = frame;
+      /* frames[i] = frame; */
       del_ss_pag(parent_PT, pag);
     }
     i++;
@@ -147,7 +148,8 @@ int sys_fork(void)
   /* rempear las páginas shared que se han borrado antes */
   for (i = 0; i < NUM_PAG_DATA; i++)
   {
-    set_ss_pag(parent_PT, NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA+i, frames[i]);
+    if (frames[i] != 0)
+      set_ss_pag(parent_PT, NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA+i, frames[i]);
   }
 
 

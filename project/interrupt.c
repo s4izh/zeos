@@ -158,22 +158,36 @@ void page_fault_routine2(unsigned int error, unsigned int eip) {
 
     if (phys_mem[frame] == 1) {
       set_ss_pag(process_PT, pag, frame);
+      set_cr3(get_DIR(current()));
       return;
     }
 
     if (phys_mem[frame] > 1) {
       int new_frame = alloc_frame();
+      int temp_pag = PAG_LOG_INIT_DATA + NUM_PAG_DATA + 1;
+      int temp_frame = get_frame(process_PT, temp_pag);
+
+      /* void *addr = get_free_addr(process_PT); */
+      /* if (new_frame != -1 && addr != NULL) { */
+
       if (new_frame != -1) {
-        void *addr = get_free_addr(process_PT);
-        set_ss_pag(process_PT, (unsigned)addr >> 12, new_frame);
-        copy_data((void*)(pag << 12), addr, PAGE_SIZE);
+        if (temp_frame != 0)
+          del_ss_pag(process_PT, temp_pag);
+
+        set_ss_pag(process_PT, temp_pag, new_frame);
+        set_cr3(get_DIR(current()));
+        copy_data((void*)(pag << 12), (void*)(temp_pag << 12), PAGE_SIZE);
 
         del_ss_pag(process_PT, pag);
-        del_ss_pag(process_PT, (unsigned)addr >> 12);
+        del_ss_pag(process_PT, temp_pag);
 
         --phys_mem[frame];
 
         set_ss_pag(process_PT, pag, new_frame);
+
+        if (temp_frame != 0)
+          set_ss_pag(process_PT, temp_pag, temp_frame);
+
         set_cr3(get_DIR(current()));
         return;
       }
