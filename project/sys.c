@@ -79,28 +79,6 @@ int sys_fork(void)
   /* Allocate pages for DATA+STACK */
   int new_ph_pag, pag, i;
   page_table_entry *process_PT = get_PT(&uchild->task);
-  /* for (pag=0; pag<NUM_PAG_DATA; pag++) */
-  /* { */
-  /*   new_ph_pag=alloc_frame(); */
-  /*   if (new_ph_pag!=-1) /1* One page allocated *1/ */
-  /*   { */
-  /*     set_ss_pag(process_PT, PAG_LOG_INIT_DATA+pag, new_ph_pag); */
-  /*   } */
-  /*   else /1* No more free pages left. Deallocate everything *1/ */
-  /*   { */
-  /*     /1* Deallocate allocated pages. Up to pag. *1/ */
-  /*     for (i=0; i<pag; i++) */
-  /*     { */
-  /*       free_frame(get_frame(process_PT, PAG_LOG_INIT_DATA+i)); */
-  /*       del_ss_pag(process_PT, PAG_LOG_INIT_DATA+i); */
-  /*     } */
-  /*     /1* Deallocate task_struct *1/ */
-  /*     list_add_tail(lhcurrent, &freequeue); */
-      
-  /*     /1* Return error *1/ */
-  /*     return -EAGAIN; */ 
-  /*   } */
-  /* } */
 
   /* Copy parent's SYSTEM and CODE to child. */
   page_table_entry *parent_PT = get_PT(current());
@@ -119,31 +97,6 @@ int sys_fork(void)
     set_ss_pag_ro(parent_PT, PAG_LOG_INIT_DATA+pag, frame);
     ++phys_mem[frame];
   }
-
-  int frames[NUM_PAG_DATA];
-  i = 0;
-
-  /* guardamos las páginas shared del padre en el vector frames[] y las desmapeamos */
-  for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<NUM_PAG_KERNEL+NUM_PAG_CODE+(2*NUM_PAG_DATA); pag++)
-  {
-    int frame = get_frame(parent_PT, pag);
-    frames[i] = frame;
-    if (frame != 0) {
-      /* frames[i] = frame; */
-      del_ss_pag(parent_PT, pag);
-    }
-    i++;
-  }
-
-  set_cr3(get_DIR(current()));
-
-  /* rempear las páginas shared que se han borrado antes */
-  for (i = 0; i < NUM_PAG_DATA; i++)
-  {
-    if (frames[i] != 0)
-      set_ss_pag(parent_PT, NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA+i, frames[i]);
-  }
-
 
   for (pag=NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA; pag<TOTAL_PAGES; pag++)
   {
