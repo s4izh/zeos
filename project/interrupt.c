@@ -151,25 +151,28 @@ void int_to_hex(unsigned int num, char *hex_string) {
 
 void page_fault_routine2(unsigned int error, unsigned int eip, unsigned int cr2) {
   unsigned pag = cr2 >> 12;
+
   char buff[8];
 
-  int pid = current()->PID;
-  itoa(pid, buff);
-  printk("\nPID: ");
-  printk(buff);
+  /* int pid = current()->PID; */
+  /* itoa(pid, buff); */
 
-  int_to_hex(cr2, buff);
-  printk("\ncr2: ");
-  printk(buff);
-  printk("\n");
+  /* if (pid == 1) buff[1] = '\0'; */
+  /* else buff[4] = '\0'; */
 
-  int_to_hex(eip, buff);
-  printk("eip: 0x");
-  printk(buff);
-  printk("\n");
-    /* int_to_hex(cr2, buff); */
-    /* printk("test: "); */
-    /* printk(buff); */
+  /* printk("\nPID: "); */
+  /* /1* write(1, buff, strlen(buff)); *1/ */
+  /* printk(buff); */
+
+  /* int_to_hex(cr2, buff); */
+  /* printk("\ncr2: "); */
+  /* printk(buff); */
+  /* printk("\n"); */
+
+  /* int_to_hex(eip, buff); */
+  /* printk("eip: 0x"); */
+  /* printk(buff); */
+  /* printk("\n"); */
 
   if (pag >= PAG_LOG_INIT_DATA && pag < PAG_LOG_INIT_DATA + NUM_PAG_DATA) {
     page_table_entry *process_PT = get_PT(current());
@@ -217,7 +220,10 @@ void page_fault_routine2(unsigned int error, unsigned int eip, unsigned int cr2)
 
   /* char buff[8]; */
   int_to_hex(eip, buff);
-  printk("Process generates a PAGE FAULT expection at EIP: 0x");
+  printk("\nProcess generates a PAGE FAULT expection at EIP: 0x");
+  printk(buff);
+  printk(", trying to access direction: 0x");
+  int_to_hex(cr2, buff);
   printk(buff);
   while(1);
 }

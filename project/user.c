@@ -193,8 +193,8 @@ int __attribute__ ((__section__(".text.main")))
   // pagefault_test -------------
 
   if (pagefault_test) {
-    int *a = 0;
-    *a = 0;
+    int *a = 15;
+    *a = 15;
   }
 
   // setcolor_test -------------

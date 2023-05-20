@@ -109,7 +109,7 @@ ENTRY(page_fault_handler2)
     popl %eax
     EOI
     RESTORE_ALL
-    popl %eax
+    popf
     iret
 
 ENTRY(system_call_handler)
