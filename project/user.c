@@ -184,11 +184,11 @@ int __attribute__ ((__section__(".text.main")))
   // test control ----------------
 
   int pagefault_test = 0;
-  int setcolor_test = 0; // milestone 3
-  int gotoxy_test = 0; // milestone 3
-  int shmat_test = 0; // milestone 4, 5
+  int setcolor_test = 1; // milestone 3
+  int gotoxy_test = 1; // milestone 3
+  int shmat_test = 1; // milestone 4, 5
   int cow_test = 1; // milestone 7
-  int read_test = 0; // milestone 1 y 2
+  int read_test = 1; // milestone 1 y 2
 
   // pagefault_test -------------
 
