@@ -8,7 +8,7 @@ float frames = 0;
 struct ball {
   int x;
   int y;
-  float speed;
+  float speed; // segundos por movimiento
 };
 
 struct ball ball;
@@ -76,6 +76,8 @@ void init_game()
   ball.x = 40;
   ball.y = 10;
   ball.speed = 3.0f;
+
+  sleep(10.0f);
 
   clear_screen();
 
