@@ -40,4 +40,6 @@ int shmdt(void* addr);
 
 int shmrm(int id);
 
+void sleep(float seconds);
+
 #endif  /* __LIBC_H__ */

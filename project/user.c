@@ -1,4 +1,5 @@
 #include <libc.h>
+#include <game.h>
 
 #define ENTRY_DIR_PAGES       0
 
@@ -29,12 +30,12 @@
 
 char buff[24];
 int pid;
-float frames = 0;
+/* float frames = 0; */
 
-float get_fps() {
-  float seconds = (float)gettime()/18.0f;
-  return frames/seconds;
-}
+/* float get_fps() { */
+/*   float seconds = (float)gettime()/18.0f; */
+/*   return frames/seconds; */
+/* } */
 
 void test_shmat()
 {
@@ -184,11 +185,13 @@ int __attribute__ ((__section__(".text.main")))
   // test control ----------------
 
   int pagefault_test = 0;
-  int setcolor_test = 1; // milestone 3
-  int gotoxy_test = 1; // milestone 3
-  int shmat_test = 1; // milestone 4, 5
-  int cow_test = 1; // milestone 7
-  int read_test = 1; // milestone 1 y 2
+  int setcolor_test = 0; // milestone 3
+  int gotoxy_test = 0; // milestone 3
+  int shmat_test = 0; // milestone 4, 5
+  int cow_test = 0; // milestone 7
+  int read_test = 0; // milestone 1 y 2
+
+  int game_test = 1; // milestone 8
 
   // pagefault_test -------------
 
@@ -240,6 +243,13 @@ int __attribute__ ((__section__(".text.main")))
 
   if (cow_test) {
     test_cow();
+  }
+
+  // game_test ------------------
+
+  if (game_test) {
+    get_frames();
+    init_game();
   }
 
   // read_test ------------------

@@ -51,3 +51,9 @@ void perror()
 
   write(1, buffer, strlen(buffer));
 }
+
+void sleep(float seconds)
+{
+  float now = (float)gettime()/18.0f;
+  while ((float)gettime()/18.0f < now + seconds);
+}
