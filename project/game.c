@@ -54,10 +54,17 @@ void welcome_screen()
   ++frames;
 }
 
-void draw_ball()
+void draw_ball(int x, int y)
 {
   gotoxy(ball.x, ball.y);
-  char* buff = "O";
+  char* buff = " ";
+  write(1, buff, strlen(buff));
+
+  ball.x += x;
+  ball.y += y;
+
+  gotoxy(ball.x, ball.y);
+  buff = "O";
   write(1, buff, strlen(buff));
 }
 
@@ -78,11 +85,8 @@ void init_game()
   *exit = 0;
 
   while(*exit == 0) {
-    draw_ball();
+    draw_ball(1, 1);
     sleep(ball.speed);
-    /* ball.x += 1; */
-    /* ball.y += 1; */
-    /* hay que ver bien como se lleva el estado de la pelota */
   }
 
   clear_screen();
