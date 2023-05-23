@@ -56,7 +56,7 @@ void welcome_screen()
   ++frames;
 }
 
-void draw_ball(int x, int y)
+void draw_ball()
 {
   gotoxy(ball.x, ball.y);
   char* buff = " ";
