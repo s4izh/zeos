@@ -8,6 +8,8 @@ float frames = 0;
 struct ball {
   int x;
   int y;
+  int x_direction;
+  int y_direction;
   float speed; // segundos por movimiento
 };
 
@@ -60,8 +62,8 @@ void draw_ball(int x, int y)
   char* buff = " ";
   write(1, buff, strlen(buff));
 
-  ball.x += x;
-  ball.y += y;
+  ball.x += ball.x_direction;
+  ball.y += ball.y_direction;
 
   gotoxy(ball.x, ball.y);
   buff = "O";
@@ -77,12 +79,15 @@ void init_game()
   ball.y = 10;
   ball.speed = 3.0f;
 
+  ball.x_direction = 1;
+  ball.y_direction = 1;
+
   sleep(10.0f);
 
   clear_screen();
 
   /* sleep(10); */
-  void *exit_indicator = shmat(1, NULL);
+  void *exit_indicator = shmat(1, 284<<12);
   int* exit = (int *)exit_indicator;
   *exit = 0;
 

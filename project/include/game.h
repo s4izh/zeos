@@ -1,6 +1,8 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
+#define INIT_SHARED 284
+
 #include <libc.h>
 
 extern float frames;
