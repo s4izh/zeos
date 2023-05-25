@@ -191,6 +191,8 @@ void game_loop()
   int game_started = 0;
   int score = 0;
 
+  int guesses [50];
+
   while (1) {
     if (!game_started) {
       if (*char_read == 'c') {
@@ -209,7 +211,7 @@ void game_loop()
 
         secret_word = words[gettime() % 8];
         write(1, secret_word, strlen(secret_word)); 
-        gotoxy(1, 20);
+        gotoxy(2, 20);
         char *buff2= "Guesses: ";
         write(1, buff2, strlen(buff2));
         gotoxy(10, 10);
@@ -226,13 +228,16 @@ void game_loop()
     /* if (magic_number == 0xFFFFFFFF) magic_number = 0; */
 
 
-    else {
-      char c = *char_read;
+    else if (c != *char_read) {
+      if (guesses[*char_read - 'a'] == 1) {
+        c = *char_read;
+        continue;
+      }
       int present = 0;
       for (int i = 0; i < strlen(secret_word); ++i) {
-        if (secret_word[i] == c) {
+        if (secret_word[i] == *char_read) {
           gotoxy(10 + i, 10);
-          write(1, &c, 1);
+          write(1, char_read, 1);
           present = 1;
         }
       }
@@ -240,8 +245,10 @@ void game_loop()
         ++tries;
         draw_hangman(tries);
         gotoxy(10 + tries, 20);
-        write(1, &c, 1);
+        write(1, char_read, 1);
       }
+      guesses[*char_read - 'a'] = 1;
+      c = *char_read;
   }
 
 
