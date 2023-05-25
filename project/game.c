@@ -3,10 +3,8 @@
 
 #define NULL 0
 
-#define MAX_TRIES 6
-#define MAX_WORD_LENGTH 20
-
-int tries = 0;
+#define MAX_LEVEL 15
+#define MAX_TRIES 5
 
 float frames = 0;
 
@@ -14,15 +12,27 @@ int* exit_flag;
 volatile char* char_read = NULL;
 /* unsigned int* magic_number; */
 
-char *words[20] = {
+char *words[15] = {
+  // facilito
   "gestor",
   "wrapper",
   "syscall",
-  "scheduler",
   "kernel",
+  "fork",
+
+  // medio
   "trhead",
-  "iorb",
+  "tlb",
+  "pagefault",
+  "quantum",
+  "idle",
+
+  // dificil
   "iofin",
+  "iorb",
+  "scheduler",
+  "cr3",
+  "pajuelo",
 };
 
 char *secret_word;
@@ -96,7 +106,7 @@ void clear_hangman() {
   }
 }
 
-void guesser() {
+void print_trophy() {
 }
 
 float get_fps()
@@ -132,20 +142,36 @@ void welcome_screen()
   write(1, buff, strlen(buff));
 
   set_color(7, 0);
-  buff = "Presiona c para comenzar";
+  buff = "Varios alumnos han sido secuestrados";
   gotoxy(5, 11);
   write(1, buff, strlen(buff));
 
-  buff = "a jugar al ahorcado con las peores palabras";
+  set_color(7, 0);
+  buff = "por el malvado profesor Baka Baka...";
   gotoxy(5, 12);
   write(1, buff, strlen(buff));
 
-  buff = "jamas inventadas (el vocabulario de SOA)";
+  set_color(7, 0);
+  buff = "Ayudalos a escapar adivinando el nombre ";
   gotoxy(5, 13);
   write(1, buff, strlen(buff));
 
+  buff = "de sus diferentes invenciones";
+  gotoxy(5, 14);
+  write(1, buff, strlen(buff));
+
+  buff = "(el vocabulario de SOA)";
+  gotoxy(5, 15);
+  write(1, buff, strlen(buff));
+
+
   set_color(4, 0);
-  buff = "Presiona ESC para salir";
+  buff = "Solo tu puedes salvarlos";
+  gotoxy(25, 19);
+  write(1, buff, strlen(buff));
+
+  set_color(2, 0);
+  buff = "Pulsa c para empezar a jugar";
   gotoxy(25, 20);
   write(1, buff, strlen(buff));
 
@@ -155,7 +181,7 @@ void welcome_screen()
 }
 
 void marco() {
-  set_color(0, 1);
+  /* set_color(0, 1); */
   gotoxy(0, 0);
   write(1, "                                                                                ", 80);
   gotoxy(0, 24);
@@ -166,6 +192,7 @@ void initial_screen()
 {
   clear_screen();
   welcome_screen();
+  set_color(0, 1);
   marco();
   set_color(15, 0);
   for (int i = 0; i < 7; ++i)
@@ -191,34 +218,89 @@ void game_loop()
   int game_started = 0;
   int score = 0;
 
+  int level = 0;
+
+  int letter_count;
+
   int guesses [50];
+  int failed_tries = 0;
+
+  int last_round_over = 0;
 
   while (1) {
     if (!game_started) {
-      if (*char_read == 'c') {
+      if (*char_read == 'c' || last_round_over) {
+
         game_started = 1;
+        last_round_over = 0;
         clear_screen();
         set_color(15, 0);
-        char* buff = "Comenzando el juego...";
-        gotoxy(10, 8);
-        write(1, buff, strlen(buff));
-        sleep(1);
+
+        if (!last_round_over) {
+          char* buff = "Comenzando el juego...";
+          gotoxy(10, 8);
+          write(1, buff, strlen(buff));
+          sleep(1);
+        }
+        if (level == MAX_LEVEL) {
+          char* buff = "Felicidades, has ganado!";
+          gotoxy(10, 8);
+          write(1, buff, strlen(buff));
+          sleep(1);
+          char* buff4 = "Presiona c para volver a jugar";
+          gotoxy(10, 12);
+          write(1, buff4, strlen(buff4));
+          level = 0;
+          score = 0;
+          game_started = 0;
+          last_round_over = 0;
+          continue;
+        }
+
         clear_screen();
+
+        set_color(0, 1);
         marco();
+        set_color(15, 0);
+
+        if (level >= 0 && level < 5) {
+          gotoxy(30, 4);
+          set_color(2, 0);
+          char* buff = "Nivel facil";
+          write(1, buff, strlen(buff));
+        }
+        if (level >= 5 && level < 10) {
+          gotoxy(30, 4);
+          set_color(6, 0);
+          char* buff = "Nivel medio";
+          write(1, buff, strlen(buff));
+        }
+        if (level >= 10 && level < 15) {
+          gotoxy(30, 4);
+          set_color(4, 0);
+          char* buff = "Nivel dificil";
+          write(1, buff, strlen(buff));
+        }
         set_color(15, 0);
 
         draw_hangman(0);
 
-        secret_word = words[gettime() % 8];
+        secret_word = words[level];
         write(1, secret_word, strlen(secret_word)); 
+        letter_count = strlen(secret_word);
+
         gotoxy(2, 20);
-        char *buff2= "Guesses: ";
+        char *buff2= "Intentos: ";
         write(1, buff2, strlen(buff2));
         gotoxy(10, 10);
         for (int i = 0; i < strlen(secret_word); ++i) {
           write(1, "_", 1);
         }
       } 
+      c = *char_read;
+      for (int i = 0; i < 50; ++i) {
+        guesses[i] = 0;
+      }
     }
     
 
@@ -239,31 +321,67 @@ void game_loop()
           gotoxy(10 + i, 10);
           write(1, char_read, 1);
           present = 1;
+          --letter_count;
+          if (letter_count == 0) {
+            game_started = 0;
+            last_round_over = 1;
+            ++level;
+          }
         }
       }
       if (!present) {
-        ++tries;
-        draw_hangman(tries);
-        gotoxy(10 + tries, 20);
+        ++failed_tries;
+        set_color(15, 0);
+        draw_hangman(failed_tries);
+        gotoxy(11 + failed_tries, 20);
+
+        set_color(12, 0);
         write(1, char_read, 1);
+        set_color(15, 0);
+
+        if (failed_tries == MAX_TRIES) {
+          clear_screen();
+          set_color(0, 4);
+          marco();
+          set_color(12, 0);
+          for (int i = 0; i < 7; ++i)
+            draw_hangman(i);
+
+          set_color(2, 0);
+          char* buff = "Has salvado a ";
+          gotoxy(10, 8);
+          write(1, buff, strlen(buff));
+
+          char n[2];
+          itoa(level, n);
+          write(1, n, 1);
+
+          buff = " / 10 inocentes";
+          write(1, buff, strlen(buff));
+
+          set_color(4, 0);
+          gotoxy(10, 10);
+          buff = "este ultimo no ha tenido tanta suerte...";
+          write(1, buff, strlen(buff));
+
+          /* set_color(3, 0); */
+          gotoxy(10, 12);
+          buff = "presiona c para volver a intentarlo";
+          write(1, buff, strlen(buff));
+          level = 0;
+          score = 0;
+          game_started = 0;
+          last_round_over = 0;
+          failed_tries = 0;
+          if (*char_read == 'c') *char_read = 'd'; // truco sucio para que no empiece la partida
+          continue;
+        }
       }
       guesses[*char_read - 'a'] = 1;
       c = *char_read;
-  }
-
-
-      if (*char_read != c) {
-        /* clear_hangman(); */
-        /* draw_hangman(0); */
-        c = *char_read;
-        /* write(1, &c, 1); */
-      }
     }
-
-    
-
-  /* return; */
-};
+  }
+}
 
 void init_game()
 {
