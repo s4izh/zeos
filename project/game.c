@@ -70,6 +70,13 @@ void draw_ball()
   write(1, buff, strlen(buff));
 }
 
+void read_input() {
+  char buff[2];
+  while(1) {
+
+  }
+}
+
 void init_game()
 {
   clear_screen();
@@ -91,9 +98,17 @@ void init_game()
   int* exit = (int *)exit_indicator;
   *exit = 0;
 
-  while(*exit == 0) {
-    draw_ball(1, 1);
-    sleep(ball.speed);
+  int pid = fork();
+
+  if (pid == 0) {
+    while(*exit == 0) {
+      draw_ball(1, 1);
+      sleep(ball.speed);
+    }
+  }
+
+  else {
+    read_input();
   }
 
   clear_screen();
