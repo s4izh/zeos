@@ -152,17 +152,17 @@ void welcome_screen()
   write(1, buff, strlen(buff));
 
   set_color(7, 0);
-  buff = "Ayudalos a escapar adivinando el nombre ";
+  buff = "Ayudalos a escapar adivinando las siguuientes";
   gotoxy(5, 13);
   write(1, buff, strlen(buff));
 
-  buff = "de sus diferentes invenciones";
+  buff = "palabras, creemos que tienen que ver con SOA ";
   gotoxy(5, 14);
   write(1, buff, strlen(buff));
 
-  buff = "(el vocabulario de SOA)";
-  gotoxy(5, 15);
-  write(1, buff, strlen(buff));
+  /* buff = "(el vocabulario de SOA)"; */
+  /* gotoxy(5, 15); */
+  /* write(1, buff, strlen(buff)); */
 
 
   set_color(4, 0);
@@ -228,7 +228,6 @@ void game_loop()
   int last_round_over = 0;
 
   while (1) {
-    print_fps();
     if (!game_started) {
       if (*char_read == 'c' || last_round_over) {
 
@@ -269,37 +268,28 @@ void game_loop()
           set_color(2, 0);
           char* buff = "Nivel facil";
           write(1, buff, strlen(buff));
-          gotoxy(30, 5);
-          char* buff2 = "Palabras resueltas: ";
-          write(1, buff2, strlen(buff2));
-          char buff3[2];
-          itoa(level, buff3);
-          write(1, buff3, strlen(buff3));
         }
         if (level >= 5 && level < 10) {
           gotoxy(30, 4);
           set_color(6, 0);
           char* buff = "Nivel medio";
           write(1, buff, strlen(buff));
-          gotoxy(30, 5);
-          char* buff2 = "Palabras resueltas: ";
-          write(1, buff2, strlen(buff2));
-          char buff3[2];
-          itoa(level, buff3);
-          write(1, buff3, strlen(buff3));
         }
         if (level >= 10 && level < 15) {
           gotoxy(30, 4);
           set_color(4, 0);
           char* buff = "Nivel dificil";
           write(1, buff, strlen(buff));
-          gotoxy(30, 5);
-          char* buff2 = "Palabras resueltas: ";
-          write(1, buff2, strlen(buff2));
-          char buff3[2];
-          itoa(level, buff3);
-          write(1, buff3, strlen(buff3));
         }
+        gotoxy(25, 5);
+        char* bufff = "Palabras resueltas: ";
+        write(1, bufff, strlen(bufff));
+        char buff3[2];
+        itoa(level, buff3);
+        write(1, buff3, strlen(buff3));
+        bufff = " / 15";
+        write(1, bufff, strlen(bufff));
+
         set_color(15, 0);
 
         draw_hangman(0);
@@ -320,6 +310,7 @@ void game_loop()
       for (int i = 0; i < 50; ++i) {
         guesses[i] = 0;
       }
+      print_fps();
     }
     
 
@@ -398,6 +389,7 @@ void game_loop()
       }
       guesses[*char_read - 'a'] = 1;
       c = *char_read;
+      print_fps();
     }
   }
 }
