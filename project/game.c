@@ -6,7 +6,14 @@
 #define MAX_LEVEL 15
 #define MAX_TRIES 5
 
-float frames = 320.0f;
+float frames = 0.0f;
+
+float get_fps()
+{
+  float seconds = (float)gettime()/18.0f;
+  return frames/seconds;
+}
+
 
 volatile char* char_read = NULL;
 /* unsigned int* magic_number; */
@@ -20,7 +27,7 @@ char *words[15] = {
   "fork",
 
   // medio
-  "trhead",
+  "thread",
   "tlb",
   "pagefault",
   "quantum",
@@ -105,25 +112,6 @@ void clear_hangman() {
   }
 }
 
-void print_trophy() {
-}
-
-float get_fps()
-{
-  float seconds = (float)gettime()/18.0f;
-  return frames/seconds;
-}
-
-void draw_fps()
-{
-  int fps = get_fps() * 100;
-  char buff[4];
-  itoa(fps, buff);
-  /* gotoxy(0, 60); */
-  /* write(1, buff, strlen(buff)); */
-  /* write(1, " .0 fps", 7); */
-}
-
 void clear_screen()
 {
   gotoxy(0, 0);
@@ -175,8 +163,6 @@ void welcome_screen()
   write(1, buff, strlen(buff));
 
   ++frames;
-
-  /* draw_fps(); */
 }
 
 void marco() {
@@ -235,12 +221,6 @@ void game_loop()
         clear_screen();
         set_color(15, 0);
 
-        if (!last_round_over) {
-          char* buff = "Comenzando el juego...";
-          gotoxy(10, 8);
-          write(1, buff, strlen(buff));
-          sleep(1);
-        }
         if (level == MAX_LEVEL) {
           clear_screen();
           set_color(0, 2);
@@ -304,7 +284,7 @@ void game_loop()
         draw_hangman(0);
 
         secret_word = words[level];
-        write(1, secret_word, strlen(secret_word)); 
+        /* write(1, secret_word, strlen(secret_word)); */ 
         letter_count = strlen(secret_word);
 
         gotoxy(2, 20);
