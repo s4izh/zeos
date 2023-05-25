@@ -209,8 +209,16 @@ void game_loop()
 
         secret_word = words[gettime() % 8];
         write(1, secret_word, strlen(secret_word)); 
+        gotoxy(1, 20);
+        char *buff2= "Guesses: ";
+        write(1, buff2, strlen(buff2));
+        gotoxy(10, 10);
+        for (int i = 0; i < strlen(secret_word); ++i) {
+          write(1, "_", 1);
+        }
       } 
     }
+    
 
     /* la buena chapuza */
 
@@ -219,6 +227,24 @@ void game_loop()
 
 
     else {
+      char c = *char_read;
+      int present = 0;
+      for (int i = 0; i < strlen(secret_word); ++i) {
+        if (secret_word[i] == c) {
+          gotoxy(10 + i, 10);
+          write(1, &c, 1);
+          present = 1;
+        }
+      }
+      if (!present) {
+        ++tries;
+        draw_hangman(tries);
+        gotoxy(10 + tries, 20);
+        write(1, &c, 1);
+      }
+  }
+
+
       if (*char_read != c) {
         /* clear_hangman(); */
         /* draw_hangman(0); */
@@ -226,7 +252,8 @@ void game_loop()
         /* write(1, &c, 1); */
       }
     }
-  }
+
+    
 
   /* return; */
 };
