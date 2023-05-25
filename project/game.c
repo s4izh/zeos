@@ -6,7 +6,7 @@
 #define MAX_LEVEL 15
 #define MAX_TRIES 5
 
-float frames = 0;
+float frames = 320.0f;
 
 int* exit_flag;
 volatile char* char_read = NULL;
@@ -228,6 +228,7 @@ void game_loop()
   int last_round_over = 0;
 
   while (1) {
+    print_fps();
     if (!game_started) {
       if (*char_read == 'c' || last_round_over) {
 
@@ -268,18 +269,36 @@ void game_loop()
           set_color(2, 0);
           char* buff = "Nivel facil";
           write(1, buff, strlen(buff));
+          gotoxy(30, 5);
+          char* buff2 = "Palabras resueltas: ";
+          write(1, buff2, strlen(buff2));
+          char buff3[2];
+          itoa(level, buff3);
+          write(1, buff3, strlen(buff3));
         }
         if (level >= 5 && level < 10) {
           gotoxy(30, 4);
           set_color(6, 0);
           char* buff = "Nivel medio";
           write(1, buff, strlen(buff));
+          gotoxy(30, 5);
+          char* buff2 = "Palabras resueltas: ";
+          write(1, buff2, strlen(buff2));
+          char buff3[2];
+          itoa(level, buff3);
+          write(1, buff3, strlen(buff3));
         }
         if (level >= 10 && level < 15) {
           gotoxy(30, 4);
           set_color(4, 0);
           char* buff = "Nivel dificil";
           write(1, buff, strlen(buff));
+          gotoxy(30, 5);
+          char* buff2 = "Palabras resueltas: ";
+          write(1, buff2, strlen(buff2));
+          char buff3[2];
+          itoa(level, buff3);
+          write(1, buff3, strlen(buff3));
         }
         set_color(15, 0);
 
@@ -424,4 +443,20 @@ void init_game()
   /* draw_hangman(0); */
 
   /* sleep(5); */
+}
+
+void print_fps() {
+  float fps = get_fps();
+  int fps_int = (int) fps;
+  float fps_dec = fps - fps_int;
+  int fps_dec_int = (int) (fps_dec * 100);
+  gotoxy(0, 10);
+  char buff[10];
+  write(1, buff, strlen(buff));
+ /* write(1, ".", 1);
+  itoa(fps_dec_int, buff);
+  write(1, buff, strlen(buff));
+  buff = " fps";
+  write(1, buff, strlen(buff));  */
+  return;
 }
