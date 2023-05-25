@@ -8,7 +8,6 @@
 
 float frames = 320.0f;
 
-int* exit_flag;
 volatile char* char_read = NULL;
 /* unsigned int* magic_number; */
 
@@ -243,8 +242,18 @@ void game_loop()
           sleep(1);
         }
         if (level == MAX_LEVEL) {
-          char* buff = "Felicidades, has ganado!";
+          clear_screen();
+          set_color(0, 2);
+          marco();
+          set_color(2, 0);
+          char* buff = "Felicidades ";
           gotoxy(10, 8);
+          write(1, buff, strlen(buff));
+          buff = "los alumnos han sido liberados y por suerte";
+          gotoxy(10, 9);
+          write(1, buff, strlen(buff));
+          buff = "no los volveras a ver en SOA";
+          gotoxy(10, 10);
           write(1, buff, strlen(buff));
           sleep(1);
           char* buff4 = "Presiona c para volver a jugar";
@@ -335,6 +344,7 @@ void game_loop()
           if (letter_count == 0) {
             game_started = 0;
             last_round_over = 1;
+            failed_tries = 0;
             ++level;
           }
         }
@@ -366,7 +376,7 @@ void game_loop()
           itoa(level, n);
           write(1, n, 1);
 
-          buff = " / 10 inocentes";
+          buff = " / 15 inocentes";
           write(1, buff, strlen(buff));
 
           set_color(4, 0);
@@ -398,11 +408,7 @@ void init_game()
 {
   void* shared_mem = shmat(1, NULL);
   
-
-  exit_flag = (int*)((unsigned long)shared_mem);
-  *exit_flag = 0;
-
-  char_read = (char*)(((unsigned long) shared_mem) + 4);
+  char_read = (char*)((unsigned long) shared_mem);
 
   /* magic_number = (int*)(((unsigned long) shared_mem) + 8); */
   /* *magic_number = 0; */
