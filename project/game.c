@@ -139,7 +139,7 @@ void welcome_screen()
   write(1, buff, strlen(buff));
 
   set_color(7, 0);
-  buff = "Ayudalos a escapar adivinando las siguuientes";
+  buff = "Ayudalos a escapar adivinando las siguientes";
   gotoxy(5, 13);
   write(1, buff, strlen(buff));
 
