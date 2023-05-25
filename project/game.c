@@ -11,7 +11,7 @@ int tries = 0;
 float frames = 0;
 
 int* exit_flag;
-volatile char* char_read = NULL; // gracias alex
+volatile char* char_read = NULL;
 unsigned int* magic_number;
 
 char *words[20] = {
@@ -174,11 +174,9 @@ void init_reader()
     char buff[1];
     if (read(buff, 1) > 0) {
       *char_read = buff[0];
-      write(1, buff, 1);
+      /* write(1, buff, 1); */
     }
   }
-  /* int* exit_flag; */
-  /* char* char_read; */
 }
 
 void game_loop()
@@ -186,18 +184,42 @@ void game_loop()
   initial_screen();
 
   char c = *char_read;
+  int game_started = 0;
 
   while (1) {
+    if (!game_started) {
+      if (*char_read == 'c') {
+        game_started = 1;
+        clear_screen();
+        set_color(15, 0);
+        char* buff = "Comenzando el juego...";
+        gotoxy(10, 8);
+        write(1, buff, strlen(buff));
+        sleep(1);
+        clear_screen();
+        marco();
+        set_color(15, 0);
+
+        draw_hangman(0);
+      } 
+      /* else if ('Q' == 27) { */
+      /*   *exit_flag = 1; */
+      /*   return; */
+      /* } */
+    }
 
     /* la buena chapuza */
 
     /* *magic_number++; */
     /* if (magic_number == 0xFFFFFFFF) magic_number = 0; */
 
-    if (*char_read != c) {
-      clear_hangman();
-      draw_hangman(0);
-      c = *char_read;
+    else {
+      if (*char_read != c) {
+        /* clear_hangman(); */
+        /* draw_hangman(0); */
+        c = *char_read;
+        write(1, &c, 1);
+      }
     }
   }
 
