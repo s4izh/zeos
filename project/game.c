@@ -11,8 +11,8 @@ int tries = 0;
 float frames = 0;
 
 int* exit_flag;
-char* char_read = NULL;
-
+volatile char* char_read = NULL; // gracias alex
+unsigned int* magic_number;
 
 char *words[20] = {
   "gestor",
@@ -172,29 +172,28 @@ void init_reader()
 {
   while (1) {
     char buff[1];
-    int c = read(buff, 1);
-    if (c != -1) {
+    if (read(buff, 1) > 0) {
       *char_read = buff[0];
-      *char_read = 'a';
-      write(1, buff, c);
+      write(1, buff, 1);
     }
   }
   /* int* exit_flag; */
   /* char* char_read; */
 }
 
-void game_loop(){
+void game_loop()
+{
   initial_screen();
 
   char c = *char_read;
 
-  /* *char_read = 'a'; */
+  while (1) {
 
-  /* while (1) { */
-  /* } */
+    /* la buena chapuza */
 
-  while (1)
-  {
+    /* *magic_number++; */
+    /* if (magic_number == 0xFFFFFFFF) magic_number = 0; */
+
     if (*char_read != c) {
       clear_hangman();
       draw_hangman(0);
@@ -207,13 +206,18 @@ void game_loop(){
 
 void init_game()
 {
-  int pid = fork();
+  void* shared_mem = shmat(1, NULL);
+  
 
-  void *shared_mem = shmat(1, NULL);
-  exit_flag = (int*)shared_mem;
+  exit_flag = (int*)((unsigned long)shared_mem);
   *exit_flag = 0;
 
-  char_read = (char*)(shared_mem + 4);
+  char_read = (char*)(((unsigned long) shared_mem) + 4);
+
+  magic_number = (int*)(((unsigned long) shared_mem) + 8);
+  *magic_number = 0;
+
+  int pid = fork();
 
   switch (pid)
   {
@@ -232,7 +236,7 @@ void init_game()
 
     default:
       /* while (1) { */
-        game_loop();
+      game_loop();
       /* } */
   }
 
