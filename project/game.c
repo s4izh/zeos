@@ -12,7 +12,7 @@ float frames = 0;
 
 int* exit_flag;
 volatile char* char_read = NULL;
-unsigned int* magic_number;
+/* unsigned int* magic_number; */
 
 char *words[20] = {
   "gestor",
