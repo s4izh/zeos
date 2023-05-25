@@ -30,6 +30,8 @@ int get_stats(int pid, struct stats *st);
 
 int read();
 
+int gettime();
+
 int gotoxy(int x, int y);
 
 int set_color(int fg, int bg);

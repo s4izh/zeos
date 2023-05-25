@@ -3,17 +3,97 @@
 
 #define NULL 0
 
+#define MAX_TRIES 6
+#define MAX_WORD_LENGTH 20
+
+int tries = 0;
+
 float frames = 0;
 
-struct ball {
-  int x;
-  int y;
-  int x_direction;
-  int y_direction;
-  float speed; // segundos por movimiento
+int* exit_flag;
+char* char_read = NULL;
+
+
+char *words[20] = {
+  "gestor",
+  "wrapper",
+  "syscall",
+  "scheduler",
+  "kernel",
+  "trhead",
+  "iorb",
+  "iofin",
 };
 
-struct ball ball;
+void draw_hangman(int tries) {
+  char *buff = "   +---+";
+  gotoxy(57, 7);
+  write(1, buff, strlen(buff));
+
+  buff = "   |   |";
+  gotoxy(57, 8);
+  write(1, buff, strlen(buff));
+
+  if (tries >= 1) {
+    buff = "   O   |";
+    gotoxy(57, 9);
+    write(1, buff, strlen(buff));
+  } 
+  else {
+    buff = "       |";
+    gotoxy(57, 9);
+    write(1, buff, strlen(buff));
+  }
+
+  if (tries == 2) {
+    buff = "  /    |";
+    gotoxy(57, 10);
+    write(1, buff, strlen(buff));
+  } else if (tries == 3) {
+    buff = "  /|   |";
+    gotoxy(57, 10);
+    write(1, buff, strlen(buff));
+  } else if (tries >= 4) {
+    buff = "  /|\\  |";
+    gotoxy(57, 10);
+    write(1, buff, strlen(buff));
+  } else {
+    buff = "       |";
+    gotoxy(57, 10);
+    write(1, buff, strlen(buff));
+  }
+
+  if (tries == 5) {
+    gotoxy(57, 11);
+    buff = "  /    |";
+    write(1, buff, strlen(buff));
+  } else if (tries >= 6) {
+    gotoxy(57, 11);
+    buff ="  / \\  |";
+    write(1, buff, strlen(buff));
+  } else {
+    gotoxy(57, 11);
+    buff = "       |";
+    write(1, buff, strlen(buff));
+  }
+
+  gotoxy(57, 12);
+  buff = "       |";
+  write(1, buff, strlen(buff));
+
+  gotoxy(57, 13);
+  buff = "=========";
+  write(1, buff, strlen(buff));
+}
+
+void clear_hangman() {
+  void * buff = "             ";
+  for (int i = 0; i < 7; i++) {
+    gotoxy(57, 7 + i);
+    write(1, buff, strlen(buff));
+  }
+
+}
 
 float get_fps()
 {
@@ -21,9 +101,14 @@ float get_fps()
   return frames/seconds;
 }
 
-float get_frames()
+void draw_fps()
 {
-  return frames;
+  int fps = get_fps() * 100;
+  char buff[4];
+  itoa(fps, buff);
+  /* gotoxy(0, 60); */
+  /* write(1, buff, strlen(buff)); */
+  /* write(1, " .0 fps", 7); */
 }
 
 void clear_screen()
@@ -36,80 +121,124 @@ void clear_screen()
 
 void welcome_screen()
 {
-  clear_screen();
-  char* buff = "Bienvenido al Fronton!";
-  gotoxy(25, 8);
+  /* clear_screen(); */
+  set_color(15, 0);
+  char* buff = "Bienvenido al Ahorcado de SOA!";
+  gotoxy(10, 8);
   write(1, buff, strlen(buff));
 
+  set_color(7, 0);
   buff = "Presiona c para comenzar";
-  gotoxy(20, 11);
+  gotoxy(5, 11);
   write(1, buff, strlen(buff));
 
-  buff = "a jugar al fronton contra ti mismo";
-  gotoxy(20, 12);
+  buff = "a jugar al ahorcado con las peores palabras";
+  gotoxy(5, 12);
   write(1, buff, strlen(buff));
 
+  buff = "jamas pensadas (el vocabulario de SOA)";
+  gotoxy(5, 13);
+  write(1, buff, strlen(buff));
+
+  set_color(4, 0);
   buff = "Presiona ESC para salir";
-  gotoxy(25, 15);
+  gotoxy(25, 20);
   write(1, buff, strlen(buff));
 
   ++frames;
+
+  /* draw_fps(); */
 }
 
-void draw_ball()
-{
-  gotoxy(ball.x, ball.y);
-  char* buff = " ";
-  write(1, buff, strlen(buff));
-
-  ball.x += ball.x_direction;
-  ball.y += ball.y_direction;
-
-  gotoxy(ball.x, ball.y);
-  buff = "O";
-  write(1, buff, strlen(buff));
+void marco() {
+  set_color(0, 1);
+  gotoxy(0, 0);
+  write(1, "                                                                                ", 80);
+  gotoxy(0, 24);
+  write(1, "                                                                                ", 80);
 }
 
-void read_input() {
-  char buff[2];
-  while(1) {
-
-  }
-}
-
-void init_game()
+void initial_screen() 
 {
   clear_screen();
   welcome_screen();
+  marco();
+  set_color(15, 0);
+  for (int i = 0; i < 7; ++i)
+    draw_hangman(i);
+}
 
-  ball.x = 40;
-  ball.y = 10;
-  ball.speed = 3.0f;
+void init_reader() 
+{
+  while (1) {
+    char buff[1];
+    int c = read(buff, 1);
+    if (c != -1) {
+      *char_read = buff[0];
+      *char_read = 'a';
+      write(1, buff, c);
+    }
+  }
+  /* int* exit_flag; */
+  /* char* char_read; */
+}
 
-  ball.x_direction = 1;
-  ball.y_direction = 1;
+void game_loop(){
+  initial_screen();
 
-  sleep(10.0f);
+  char c = *char_read;
 
-  clear_screen();
+  /* *char_read = 'a'; */
 
-  /* sleep(10); */
-  void *exit_indicator = shmat(1, 284<<12);
-  int* exit = (int *)exit_indicator;
-  *exit = 0;
+  /* while (1) { */
+  /* } */
 
-  int pid = fork();
-
-  if (pid == 0) {
-    while(*exit == 0) {
-      draw_ball(1, 1);
-      sleep(ball.speed);
+  while (1)
+  {
+    if (*char_read != c) {
+      clear_hangman();
+      draw_hangman(0);
+      c = *char_read;
     }
   }
 
-  else {
-    read_input();
+  /* return; */
+};
+
+void init_game()
+{
+  int pid = fork();
+
+  void *shared_mem = shmat(1, NULL);
+  exit_flag = (int*)shared_mem;
+  *exit_flag = 0;
+
+  char_read = (char*)(shared_mem + 4);
+
+  switch (pid)
+  {
+    case -1:
+      clear_screen();
+      set_color(12, 0);
+      gotoxy(25, 10);
+      char *buff = "Error en el fork del juego";
+      write(1, buff, strlen(buff));
+      exit();
+      break;
+
+    case 0:
+      init_reader();
+      break;
+
+    default:
+      /* while (1) { */
+        game_loop();
+      /* } */
   }
 
-  clear_screen();
+  /* set_color(15, 0); */
+  /* clear_hangman(); */
+  /* draw_hangman(0); */
+
+  /* sleep(5); */
 }

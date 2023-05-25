@@ -248,7 +248,6 @@ int __attribute__ ((__section__(".text.main")))
   // game_test ------------------
 
   if (game_test) {
-    get_frames();
     init_game();
   }
 
@@ -256,8 +255,8 @@ int __attribute__ ((__section__(".text.main")))
 
   if (read_test) {
     while (1) {
-      char buff[4];
-      int c = read(buff, 4);
+      char buff[1];
+      int c = read(buff, 1);
       if (c != -1) {
         write(1, buff, c);
       }
