@@ -107,7 +107,6 @@ ENTRY(page_fault_handler2)
     popl %ebx
     popl %ebx
     popl %eax
-    EOI
     RESTORE_ALL
     popf
     iret
