@@ -299,7 +299,6 @@ void game_loop()
       for (int i = 0; i < 50; ++i) {
         guesses[i] = 0;
       }
-      print_fps();
     }
     
 
@@ -379,7 +378,6 @@ void game_loop()
       }
       guesses[*char_read - 'a'] = 1;
       c = *char_read;
-      print_fps();
     }
   }
 }
@@ -421,20 +419,4 @@ void init_game()
   /* draw_hangman(0); */
 
   /* sleep(5); */
-}
-
-void print_fps() {
-  float fps = get_fps();
-  int fps_int = (int) fps;
-  float fps_dec = fps - fps_int;
-  int fps_dec_int = (int) (fps_dec * 100);
-  gotoxy(0, 10);
-  char buff[10];
-  write(1, buff, strlen(buff));
- /* write(1, ".", 1);
-  itoa(fps_dec_int, buff);
-  write(1, buff, strlen(buff));
-  buff = " fps";
-  write(1, buff, strlen(buff));  */
-  return;
 }
