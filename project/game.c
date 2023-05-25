@@ -25,6 +25,8 @@ char *words[20] = {
   "iofin",
 };
 
+char *secret_word;
+
 void draw_hangman(int tries) {
   char *buff = "   +---+";
   gotoxy(57, 7);
@@ -92,7 +94,9 @@ void clear_hangman() {
     gotoxy(57, 7 + i);
     write(1, buff, strlen(buff));
   }
+}
 
+void guesser() {
 }
 
 float get_fps()
@@ -136,7 +140,7 @@ void welcome_screen()
   gotoxy(5, 12);
   write(1, buff, strlen(buff));
 
-  buff = "jamas pensadas (el vocabulario de SOA)";
+  buff = "jamas inventadas (el vocabulario de SOA)";
   gotoxy(5, 13);
   write(1, buff, strlen(buff));
 
@@ -185,6 +189,7 @@ void game_loop()
 
   char c = *char_read;
   int game_started = 0;
+  int score = 0;
 
   while (1) {
     if (!game_started) {
@@ -201,11 +206,10 @@ void game_loop()
         set_color(15, 0);
 
         draw_hangman(0);
+
+        secret_word = words[gettime() % 8];
+        write(1, secret_word, strlen(secret_word)); 
       } 
-      /* else if ('Q' == 27) { */
-      /*   *exit_flag = 1; */
-      /*   return; */
-      /* } */
     }
 
     /* la buena chapuza */
@@ -213,12 +217,13 @@ void game_loop()
     /* *magic_number++; */
     /* if (magic_number == 0xFFFFFFFF) magic_number = 0; */
 
+
     else {
       if (*char_read != c) {
         /* clear_hangman(); */
         /* draw_hangman(0); */
         c = *char_read;
-        write(1, &c, 1);
+        /* write(1, &c, 1); */
       }
     }
   }
@@ -236,8 +241,8 @@ void init_game()
 
   char_read = (char*)(((unsigned long) shared_mem) + 4);
 
-  magic_number = (int*)(((unsigned long) shared_mem) + 8);
-  *magic_number = 0;
+  /* magic_number = (int*)(((unsigned long) shared_mem) + 8); */
+  /* *magic_number = 0; */
 
   int pid = fork();
 

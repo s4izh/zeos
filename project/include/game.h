@@ -14,4 +14,4 @@ void clear_screen();
 void welcome_screen();
 
 
-#endif __GAME_H__
+#endif /* __GAME_H__ */
