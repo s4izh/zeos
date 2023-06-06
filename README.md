@@ -22,3 +22,5 @@ nix develop
 ```
 
 You will now be inside a shell with `bochs`, `gdb`, `gcc`, etc. available.
+
+Credits to my homie Arnau [@Toomoch](https://www.github.com/Toomoch) for writing the [flake](https://github.com/Toomoch/SOA-ZeOS-fib-nix).
