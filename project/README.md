@@ -7,9 +7,9 @@ Milestones
 - [x] 3. (1 point) Functional gotoxy and set_color features.
 - [x] 4. (1 point) Functional shmat feature.
 - [x] 5. (2 points) Functional shmdt and shmrm features.
-- [ ] 6. (1 point) Performance statistics.
-- [ ] 7. (2 points) Functional COW support.
-- [ ] 8. (1 point) Functional game using different implemented features.
+- [x] 6. (1 point) Performance statistics.
+- [x] 7. (2 points) Functional COW support.
+- [x] 8. (1 point) Functional game using different implemented features.
 
 The professor Baka Baka likes the potential of our Zeos system and wants to
 implement some kind of video game. He would like to design a galaxian(™) like
